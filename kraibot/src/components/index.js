@@ -35,7 +35,7 @@ ROS2NAV.defaultProps = {
 
 
 function App() {
-
+  const localhost = "172.16.10.30";
   const classes = useStyles();
   const [map, setMap] = React.useState('');
   const [mode, setMode] = React.useState('manual');
@@ -50,13 +50,13 @@ function App() {
 
   async function FetchMap() 
   {
-    const response = await fetch('http://localhost:8000/admin');
+    const response = await fetch(`http://${localhost}:8000/admin`);
     const res = await response.json();
     return res.mapList;
   };
 
   async function MapServer(input){
-    const response = await fetch('http://localhost:8000/api/getMap', {
+    const response = await fetch(`http://${localhost}:8000/api/getMap`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -66,16 +66,29 @@ function App() {
   }
 
   //
+  async function MapCreate(input){
+    const response = await fetch(`http://${localhost}:8000/api/createMap`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({createMap: input}),
+    });
+  }
+  //
+
   async function MapDelete(input){
-    const response = await fetch('http://localhost:8000/api/deleteMap', {
+    const response = await fetch(`http://${localhost}:8000/api/deleteMap`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({deleteMap_Name: input}),
     });
+    const res = await response.json();
+    setMapList(res.mapList);
+    setMap('NA');
   }
-  //
 
   useEffect(() => {
 
@@ -86,7 +99,7 @@ function App() {
     getMap();
 
     const interval = setInterval(() => {
-      if(!ros.isConnected){ros.connect('ws://localhost:9090');}
+      if(!ros.isConnected){ros.connect(`ws://${localhost}:9090`);}
       else{setConnected(true);}
     }, 1000);
 
@@ -102,7 +115,7 @@ function App() {
   // initialozing turtletopic for teleop
   var cmdVel = new ROSLIB.Topic({
     ros: ros,
-    name: '/turtle1/cmd_vel',
+    name: '/cmd_vel',
     messageType: 'geometry_msgs/Twist'
   });
 
@@ -122,7 +135,7 @@ function App() {
 
   function handleTeleop(direction) {
     if(direction === 'forward') {
-      angular_vel_z = 0;
+      //angular_vel_z = 0;
       vel_x += 0.1;
     }
     else if (direction === 'stop') {
@@ -130,11 +143,11 @@ function App() {
       angular_vel_z = 0.0;
     }
     else if (direction === 'left') {
-      vel_x = 0;
+      //vel_x = 0;
       angular_vel_z += 0.1;
     }
     else if (direction === 'right') {
-      vel_x = 0;
+      //vel_x = 0;
       angular_vel_z -= 0.1;
     }
     else if (direction === 'back') {
@@ -156,6 +169,9 @@ function App() {
     else {
       setMode('slam');
       setCreatemap(true);
+      //
+      MapCreate(true);
+      //
       console.log(mode);
     }
   }
