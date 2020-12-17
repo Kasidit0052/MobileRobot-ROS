@@ -42,7 +42,17 @@ function App() {
   const [connected, setConnected] = React.useState(false);
   const [createMap, setCreatemap] = React.useState(false);
   const [mapList,setMapList] =  React.useState([]);
+  const [windowWidth, setWindowWidth] = useState(Math.ceil(window.innerWidth*0.5));
+  const [windowHeight, setWindowHeight] = useState(Math.ceil(window.innerHeight*0.5));
 
+  let resizeMap = () => {
+    let mapWidth = Math.ceil(window.innerWidth*0.5);
+    let mapHeight = Math.ceil(window.innerHeight*0.5);
+    setWindowWidth(mapWidth);
+    setWindowHeight(mapHeight);
+  };
+
+  
   const handleChange = (event) => {
     setMap(event.target.value);
     MapServer(event.target.value);
@@ -91,7 +101,8 @@ function App() {
   }
 
   useEffect(() => {
-
+    resizeMap();
+    window.addEventListener("resize", resizeMap);
     const getMap = async function GetMap()  {
       const subscription  = await FetchMap();
       setMapList(subscription);
@@ -106,6 +117,7 @@ function App() {
     return () => {
       ros.close();
       setConnected(false);
+      window.removeEventListener("resize", resizeMap);
     };
   },[]);
 
@@ -207,7 +219,7 @@ function App() {
   function MapHandler(props){
     return (
     <div>
-          <ROS2NAV class="map"></ROS2NAV>
+          <ROS2NAV class="map" width={windowWidth} height={windowHeight}></ROS2NAV>
     </div>
     );
   }
@@ -280,7 +292,7 @@ function App() {
                     </div>
 
                   <div class="connection-wrapper">
-                    Connection wrapper
+
                   </div>
 
                 </div>

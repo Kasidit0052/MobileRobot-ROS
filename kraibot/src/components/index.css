@@ -9,6 +9,7 @@
   align-items: center;
   justify-content: space-around;
   font-size: calc(15px + 2vmin);
+  width: 100%;
 }
 
 :root {
@@ -208,10 +209,4 @@ h6 {
   justify-content: center;
   align-items: center;
   height: 100%;
-}
-
-@media screen and (max-width: 1200px) {
-  .App-header {
-    width: 95%;
-  }
 }
