@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="./style.css" type="text/css">
+    <link href="./mui-0.10.3/css/mui.min.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="./scripts/ROS2D_asset/easeljs.min.js"></script>
+    <script type="text/javascript" src="./scripts/ROS2D_asset/eventemitter2.min.js"></script>
+    <script type="text/javascript" src="./scripts/ROS2D_asset/roslib.min.js"></script>
+    <script type="text/javascript" src="./scripts/ROS2D_asset/ros2d.min.js"></script>
+    <script type="text/javascript" src="./scripts/index.js"></script>
+    <script src="./mui-0.10.3/js/mui.min.js"></script>
+</head>
+</script>
+<body onload="init()">
+    <div class="App">
+    <div class="App-header">
+    <div class="controller-wrapper">
+        <!-- nav-wrapper -->
+        <div class="nav-wrapper">
+            <div class="dots-wrapper">
+                <h6>KRAI BOT CONTROLLER</h6>
+            </div>
+
+            <div class="status-wrapper">
+              <h6 class="connection-status">DISCONNECT</h6>
+            </div> 
+        </div>
+
+        <!-- lower-wrapper -->
+        <div class="main-wrapper">
+
+            <!-- left-column -->
+            <div class="left-column">
+                <div class="map-controller">
+                    <div class="form">
+                        <form class="mui-form">
+                            <div class="mui-select">
+                                <select>
+                                  <option>Option 1</option>
+                                  <option>Option 2</option>
+                                  <option>Option 3</option>
+                                  <option>Option 4</option>
+                                </select>
+                                <label>Select Map</label>
+                              </div>
+                        </form>
+                    </div>
+                    <div class="map-button">
+                        <button class="mui-btn mui-btn--primary mui-btn--raised createMapBtn" onclick="handleCreatemap()">CREATE NEW MAP</button>
+                        <button class="mui-btn mui-btn--primary mui-btn--raised deleteMapBtn" >DELETE  CURRENT MAP</button>
+                    </div>
+                </div>
+                <div class="map-wrapper">
+                    <div id="map"></div>
+                </div>
+                <div id="mode-selection">
+                    <button class="mui-btn mui-btn--primary manualBtn" onclick="handleMode('manual')">MANUAL</button>
+                    <button class="mui-btn mui-btn--primary navigationBtn"  onclick="handleMode('nav')">NAVIGATION</button>
+                    <button class="mui-btn mui-btn--primary initialBtn"  onclick="handleMode('init')">INITIAL POSE</button>
+                </div>
+            </div>
+
+            <!-- right-column -->
+            <div class="right-column">
+                <div class="teleop-wrapper">
+                    <div class="mui-col">
+                        <div class="mui-row">
+                            <button class="mui-btn mui-btn--accent teleopBtn" style="margin-left: 1%;
+                            margin-right: 1%;" onclick="handleTeleop('forward')">FORWARD</button>
+                        </div>
+                        <div class="mui-row">
+                            <button class="mui-btn mui-btn--accent teleopBtn" style="margin:auto;" onclick="handleTeleop('left')">LEFT</button>
+                            <button class="mui-btn mui-btn--accent teleopBtn" style="margin:auto;" onclick="handleTeleop('stop')">STOP</button>
+                            <button class="mui-btn mui-btn--accent teleopBtn" style="margin:auto;" onclick="handleTeleop('right')">RIGHT</button>                    
+                        </div>
+                        <div class="mui-row">
+                            <button class="mui-btn mui-btn--accent teleopBtn" style="margin:auto;" onclick="handleTeleop('back')">BACKWARD</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="connection-wrapper">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    </div> 
+    </div>  
+</body>
+</html>

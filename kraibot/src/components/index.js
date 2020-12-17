@@ -75,7 +75,7 @@ function App() {
     });
   }
 
-  //
+
   async function MapCreate(input){
     const response = await fetch(`http://${localhost}:8000/api/createMap`, {
       method: 'POST',
@@ -119,7 +119,7 @@ function App() {
       setConnected(false);
       window.removeEventListener("resize", resizeMap);
     };
-  },[]);
+  },1000);
 
   var vel_x = 0.0;
   var angular_vel_z = 0.0;
@@ -260,7 +260,8 @@ function App() {
                     </div>
 
                     <div class="map-wrapper">
-                      <MapHandler/>
+                      {/* <MapHandler/> */}
+                      <ROS2NAV class="map" width={windowWidth} height={windowHeight}></ROS2NAV>
                     </div>
 
                     <div id="mode-selection">
