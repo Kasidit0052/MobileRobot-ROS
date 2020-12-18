@@ -1,45 +1,39 @@
-const bodyParser = require("body-parser");
-
-const localhost = "localhost";
+const localhost = "172.16.10.20";
 var ros = new ROSLIB.Ros({});
-const connected = false;
-const setMode = 'manual'
+
+setInterval(()=>{
+  const statusElem = document.querySelector(".connection-status");
+  if(!ros.isConnected){ 
+    statusElem.innerText = "Disconnected";
+    ros.connect(`ws://${localhost}:9090`)
+  }
+  else{
+    statusElem.innerText = "Connected";
+  };
+  }, 1000);
 
 function init() {
 
-  const statusElem = document.querySelector(".connection-status");
-  if(!ros.isConnected){ 
-    ros.connect(`ws://${localhost}:9090`);
-  }
-
-
-  ros.on('connection', function(){
-    console.log("Connected");
-    handleMode('manual');
-    statusElem.innerText = "Connected";
-  })
-
-  ros.on('error', function(){
-     console.log("Error");
-  })
+  handleMode('manual');
 
   var viewer = new ROS2D.Viewer({
     divID : 'map',
     width : 600,
-    height : 450
+    height : 450,
   });
 
     // Setup the map client.
   var gridClient = new ROS2D.OccupancyGridClient({
     ros : ros,
-    rootObject : viewer.scene
+    rootObject : viewer.scene,
+    continuous: true,
+    // continuous: continuous,
   });
     // Scale the canvas to fit to the map
   gridClient.on('change', function(){
     viewer.scaleToDimensions(gridClient.currentGrid.width, gridClient.currentGrid.height);
+    viewer.shift(gridClient.currentGrid.pose.position.x, gridClient.currentGrid.pose.position.y);
   });
-
-  
 }
 
 function handleMode(mode) {
@@ -129,19 +123,38 @@ function handleTeleop(direction) {
   cmdVel.publish(twist);
 }
 
-// function handleCreatemap() {
-//   const createMapElem = document.querySelector(".createMapBtn");
-//   const state = "tosave";
-//   // save map 
-//   var mapName = prompt('SAVE MAP AS');
-//   if (mapName === null) {
-//     console.log('no'); 
-//   }
-//   else {
-//     handleMode('slam');
-//     const saveElem = document.createElement("button");
-    
-    
-//   }
-// }
+function handleCreatemap(){
+  const createMapElem = document.querySelector(".createMapBtn");
+  const saveMapElem = document.querySelector(".saveMapBtn");
+  const deleteMapElem = document.querySelector(".deleteMapBtn");
+  const mapName = prompt('SAVE MAP AS');
+  if (!(mapName === null)) {
+    handleMode('slam');
+    createMapElem.disabled = true;
+    saveMapElem.disabled = false;
+    deleteMapElem.disabled = true;
+  } 
+}
 
+function handleSavemap(){
+  const createMapElem = document.querySelector(".createMapBtn");
+  const saveMapElem = document.querySelector(".saveMapBtn");
+  const deleteMapElem = document.querySelector(".deleteMapBtn");
+  var mapSave = window.confirm("Save data?");
+  if (mapSave) {
+    // delete from database
+    alert('map saved')
+    handleMode('manual');
+    createMapElem.disabled = false;
+    saveMapElem.disabled = true;
+    deleteMapElem.disabled = false;
+  }
+}
+
+function handleDeletemap(){
+  var deleteMap = window.confirm("Delete data?");
+  if (deleteMap) {
+    // delete from database
+    alert('map deleted');
+  }
+}
