@@ -13,12 +13,12 @@
 </head>
 </script>
 <body onload="init()">
-    <div class="App">
+    <div class="App"></div>
     <div class="App-header">
     <div class="controller-wrapper">
         <!-- nav-wrapper -->
         <div class="nav-wrapper">
-            <div class="dots-wrapper">
+            <div class="name-wrapper">
                 <h6>KRAI BOT CONTROLLER</h6>
             </div>
 
@@ -36,7 +36,7 @@
                     <div class="form">
                         <form class="mui-form">
                             <div class="mui-select">
-                                <select>
+                                <select onchange="mapselected(this)">
                                   <option>Option 1</option>
                                   <option>Option 2</option>
                                   <option>Option 3</option>
@@ -47,13 +47,14 @@
                         </form>
                     </div>
                     <div class="map-button">
+                        <button class="mui-btn mui-btn--primary mui-btn--raised activeMapBtn" onclick="handleActiveemap()">ACTIVE SELECTED MAP</button>
                         <button class="mui-btn mui-btn--primary mui-btn--raised createMapBtn" onclick="handleCreatemap()">CREATE NEW MAP</button>
                         <button class="mui-btn mui-btn--primary mui-btn--raised saveMapBtn" onclick="handleSavemap()" disabled>SAVE MAP</button>
                         <button class="mui-btn mui-btn--primary mui-btn--raised deleteMapBtn" onclick="handleDeletemap()" >DELETE  CURRENT MAP</button>
                     </div>
                 </div>
-                <div class="map-wrapper" >
-                    <div id="map"></div>
+                <div class="map-wrapper" id="map-coontainer">
+                    <div id="map" style="width:100%; height:100%;"></div>
                 </div>
                 <div id="mode-selection">
                     <button class="mui-btn mui-btn--primary manualBtn" onclick="handleMode('manual')">MANUAL</button>
@@ -81,6 +82,7 @@
                     </div>
                 </div>
                 <div class="connection-wrapper">
+                    space
                 </div>
             </div>
         </div>

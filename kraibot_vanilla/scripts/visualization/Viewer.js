@@ -22,6 +22,7 @@ ROS2D.Viewer = function(options) {
 
   // create the canvas to render to
   var canvas = document.createElement('canvas');
+  canvas.id = 'map-canvas';
   canvas.width = this.width;
   canvas.height = this.height;
   canvas.style.background = background;

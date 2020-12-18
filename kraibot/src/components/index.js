@@ -2,7 +2,7 @@ import React, { Component , useState} from 'react';
 import './index.css';
 import { Button, TextField, Grid, Container } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import Nav2d from 'react-nav2djs';
+import Nav2d from './react-nav2djs-master/src/index.js';
 import { useEffect } from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
@@ -30,12 +30,14 @@ ROS2NAV.defaultProps = {
   id: 'nav2d',
   width: 600,
   height: 450,
-  serverName: '/move_base'
+  serverName: '/move_base',
+  continuous: true
 };
 
 
+
 function App() {
-  const localhost = "172.16.10.30";
+  const localhost = "172.16.10.20";
   const classes = useStyles();
   const [map, setMap] = React.useState('');
   const [mode, setMode] = React.useState('manual');
@@ -216,7 +218,7 @@ function App() {
     console.log(mode);
   }
   
-  function MapHandler(props){
+  function MapHandler(){
     return (
     <div>
           <ROS2NAV class="map" width={windowWidth} height={windowHeight}></ROS2NAV>
@@ -260,8 +262,11 @@ function App() {
                     </div>
 
                     <div class="map-wrapper">
-                      {/* <MapHandler/> */}
-                      <ROS2NAV class="map" width={windowWidth} height={windowHeight}></ROS2NAV>
+                      {
+                        setInterval()
+                      }
+                      <MapHandler/>
+                      {/* <ROS2NAV class="map" width={windowWidth} height={windowHeight}></ROS2NAV> */}
                     </div>
 
                     <div id="mode-selection">

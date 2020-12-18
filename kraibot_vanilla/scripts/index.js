@@ -1,5 +1,6 @@
 const localhost = "172.16.10.20";
 var ros = new ROSLIB.Ros({});
+var viewer = null;
 
 setInterval(()=>{
   const statusElem = document.querySelector(".connection-status");
@@ -12,14 +13,29 @@ setInterval(()=>{
   };
   }, 1000);
 
+function onResizemap() {
+  let mapWidth  = Math.ceil(window.innerWidth);
+  
+  document.getElementById('map-canvas').style.width  = (mapWidth*0.5)+"px";
+  document.getElementById('map-canvas').style.height = (mapWidth*0.3)+"px";
+  //viewer.scaleToDimensions(2,2);
+
+}
+  
+window.addEventListener("resize",onResizemap)
+
+function mapselected(a){
+  console.log(a.value)
+}
+
 function init() {
 
   handleMode('manual');
 
-  var viewer = new ROS2D.Viewer({
+  viewer = new ROS2D.Viewer({
     divID : 'map',
-    width : 600,
-    height : 450,
+    width :  Math.ceil(window.innerWidth*0.5),
+    height : Math.ceil(window.innerWidth*0.3),
   });
 
     // Setup the map client.
@@ -158,3 +174,4 @@ function handleDeletemap(){
     alert('map deleted');
   }
 }
+
