@@ -4,10 +4,24 @@
     <meta charset="utf-8" />
     <link rel="stylesheet" href="./style.css" type="text/css">
     <link href="./mui-0.10.3/css/mui.min.css" rel="stylesheet" type="text/css" />
+
+    <script type="text/javascript" src="./scripts/Jquery/jquery-1.11.1.min.js"></script>
+    
     <script type="text/javascript" src="./scripts/ROS2D_asset/easeljs.min.js"></script>
     <script type="text/javascript" src="./scripts/ROS2D_asset/eventemitter2.min.js"></script>
     <script type="text/javascript" src="./scripts/ROS2D_asset/roslib.min.js"></script>
     <script type="text/javascript" src="./scripts/ROS2D_asset/ros2d.min.js"></script>
+
+    <script type="text/javascript" src="./scripts/ThreeJS_asset/three.min.js"></script>
+    
+    <script type="text/javascript" src="./scripts/visualization/PanView.js"></script>
+    <script type="text/javascript" src="./scripts/visualization/Viewer.js"></script>
+    <script type="text/javascript" src="./scripts/visualization/ZoomView.js"></script>
+
+    <script type="text/javascript" src="./scripts/navigation/NavGoal.js"></script>
+    <script type="text/javascript" src="./scripts/navigation/NavPath.js"></script>
+    <script type="text/javascript" src="./scripts/navigation/PoseAndTrace.js"></script>
+
     <script type="text/javascript" src="./scripts/index.js"></script>
     <script src="./mui-0.10.3/js/mui.min.js"></script>
 </head>
@@ -36,11 +50,7 @@
                     <div class="form">
                         <form class="mui-form">
                             <div class="mui-select">
-                                <select onchange="mapselected(this)">
-                                  <option>Option 1</option>
-                                  <option>Option 2</option>
-                                  <option>Option 3</option>
-                                  <option>Option 4</option>
+                                <select class="mapSelect" onchange="mapselected(this)">
                                 </select>
                                 <label>Select Map</label>
                               </div>
