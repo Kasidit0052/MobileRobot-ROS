@@ -25,7 +25,7 @@ const current_path = process.cwd();
 
 // Attach function
 function init_ros() {
-  //ros.connect('ws://172.16.10.20:9090');
+  ros.connect('ws://172.16.10.20:9090');
   if(ros.isConnected){global.rosIsConnected = true;}
   else{global.rosIsConnected = false;}
 }
@@ -192,7 +192,7 @@ app.post('/api/robot_cancel', (req, res) => {
 });
 
 // Receive Point and save as Json File
-// Usages 
+// Usages: 
 // {
 //   "name":"Robotic Lab",
 //   "poseMessage":
@@ -298,7 +298,7 @@ app.get('/api/loadPoint', (req, res) => {
   }
 });
 
-// MobileRobot Movebase using Location (usages=> {"index" : key_value)
+// MobileRobot Movebase using Location (usages=> {"location_index" : key_valuekey_value(0,1,2,3)})
 app.post('/api/moveBasePoint', (req, res) => {
 
   // path to  persistent_database
@@ -316,11 +316,36 @@ app.post('/api/moveBasePoint', (req, res) => {
       // load JSON string to javascript object
       obj = JSON.parse(data);
 
+      // reference Goal Pose from json object
+      reference_pose = obj[parseInt(req.body.location_index)].poseMessage.targetPose.Pose;
+
+      // Initializing ROSLIB Goal Pose
+      var positionVec3 = new ROSLIB.Vector3(null);
+      var orientation = new ROSLIB.Quaternion({x:0, y:0, z:0, w:1.0});
+
+      // Assign the reference Goal Pose to ROSLIB Goal Pose
+      positionVec3.x = parseFloat(reference_pose.position.x);
+      positionVec3.y = parseFloat(reference_pose.position.y);
+      positionVec3.z = parseFloat(reference_pose.position.z);
+      orientation.x = parseFloat(reference_pose.orientation.x);
+      orientation.y = parseFloat(reference_pose.orientation.y);
+      orientation.z = parseFloat(reference_pose.orientation.z);
+      orientation.w = parseFloat(reference_pose.orientation.w);
+      
+      var pose = new ROSLIB.Pose({
+        position : positionVec3,
+        orientation : orientation
+      });
+  
       // Initializing Goal 
       var goal = new ROSLIB.Goal({
           actionClient : actionClient,
-          goalMessage : {target_pose : 
-            obj[parseInt(req.body.index)].poseMessage.targetPose
+          goalMessage : {target_pose : {
+            header : {
+              frame_id : 'map'
+            },
+              pose : pose
+            }
           }
       });
 
@@ -348,77 +373,97 @@ app.post('/api/moveBasePoint', (req, res) => {
   }
 });
 
-// get Map lists
+// get Map Lists (Experimental)
 app.get('/api/getMapList',(req, res) => {
+
+  // File filtering Argument
   var EXTENSION = '.yaml';
-  var dirPath = '/home/parallels/map';
-  fs.readdir(dirPath, function(err, files){
+  var dirPathtoMapFolder = '/home/parallels/map';
+
+  // Read Directory and return list of file
+  fs.readdir(dirPathtoMapFolder, function(err, files){
     var targetFiles = files.filter(function(file) {
       return path.extname(file).toLowerCase() === EXTENSION;
     });
-    res.json({mapList : targetFiles});
+    res.json({mapLists : targetFiles});
   });
 });
 
-// open specific map
+// Open specific map (usages=> {"map_index" : key_value(0,1,2,3)}) (Experimental)
 global.MapProcess;
 app.post('/api/getMap', (req, res) => {
 
+  // selectedMap Filename
   var map_file = '';
+
+  // File filtering Argument
   var EXTENSION = '.yaml';
-  var dirPath = '/home/parallels/map';
-  fs.readdir(dirPath, function(err, files){
+  var dirPathtoMapFolder = '/home/parallels/map';
+
+  // Read Directory and return list of file
+  fs.readdir(dirPathtoMapFolder, function(err, files){
     var targetFiles = files.filter(function(file) {
       return path.extname(file).toLowerCase() === EXTENSION;
     });
 
-    if(req.body.mapServer_Status != 'NA')
+    if(req.body.map_index != 'NA')
     {
+      // Kill and Create new Map Server Child Process
       if(global.MapProcess){global.MapProcess.kill();}
-      map_file = targetFiles[parseInt(req.body.mapServer_Status)];
-      var absoluteDir = dirPath+"/" + map_file;
+      map_file = targetFiles[parseInt(req.body.map_index)];
+      var absoluteDir = dirPathtoMapFolder+"/" + map_file;
       global.MapProcess = spawn('rosrun',['map_server', 'map_server', absoluteDir],{stdio: 'inherit'})
     }
     else
     {
+      // Close Map Server Child Process
       if(global.MapProcess){global.MapProcess.kill();}
     } 
 
   });
 });
 
-// deleter specific map
+// Delete specific map (usages=> {"map_index" : key_value(0,1,2,3)}) (Experimental)
 app.post('/api/deleteMap', (req, res) => {
+
+  // File filtering Argument
   var EXTENSION = '.yaml';
-  var dirPath = '/home/parallels/map';
+  var dirPathtoMapFolder = '/home/parallels/map';
+
+  // Kill Current Map Process (prepare to delete)
   if(global.MapProcess){global.MapProcess.kill();}
-  fs.readdir(dirPath, function(err, files){
+
+  // Read Directory and return list of file
+  fs.readdir(dirPathtoMapFolder, function(err, files){
     var targetFiles = files.filter(function(file) {
       return path.extname(file).toLowerCase() === EXTENSION;
     });
-    if(typeof targetFiles[parseInt(req.body.deleteMap_Name)] !== "undefined")
+
+    // Check whether the file is exist or not
+    if(typeof targetFiles[parseInt(req.body.map_index)] !== "undefined")
     {
-      fileNametoDelete = targetFiles[parseInt(req.body.deleteMap_Name)].replace('.yaml','');
+      fileNametoDelete = targetFiles[parseInt(req.body.map_index)].replace('.yaml','');
 
-      fs.unlink(path.join(dirPath,fileNametoDelete.concat(".yaml")), (err) => {
+      // Remove Both map.pgm and map.yaml
+      fs.unlink(path.join(dirPathtoMapFolder,fileNametoDelete.concat(".yaml")), (err) => {
+        if (err) {
+          console.error(err)
+          return
+        }
+      })
+      fs.unlink(path.join(dirPathtoMapFolder,fileNametoDelete.concat(".pgm")), (err) => {
         if (err) {
           console.error(err)
           return
         }
       })
 
-      fs.unlink(path.join(dirPath,fileNametoDelete.concat(".pgm")), (err) => {
-        if (err) {
-          console.error(err)
-          return
-        }
-      })
-
-      fs.readdir(dirPath, function(err, files){
+      // Return new Maplist to users
+      fs.readdir(dirPathtoMapFolder, function(err, files){
         var targetFiles = files.filter(function(file) {
           return path.extname(file).toLowerCase() === EXTENSION;
         });
-        res.json({mapList : targetFiles});
+        res.json({mapLists : targetFiles});
       });
       
     }
