@@ -27,12 +27,11 @@ window.addEventListener("resize", function () {
 });
 
 async function init() {
-  handleMode("manual");
+  handleMode("NA");
   maps = await FetchMap();
-
   console.log(maps);
-
   queryMaps(maps);
+  MapServer("NA");
 
   viewer = new ROS2D.Viewer({
     divID: "map",
@@ -67,7 +66,6 @@ async function init() {
     );
     registerMouseHandlers();
   });
-
   gridClient.rootObject.addChild(robotMarker);
 }
 
