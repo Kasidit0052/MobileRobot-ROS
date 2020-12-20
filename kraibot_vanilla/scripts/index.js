@@ -19,12 +19,11 @@ setInterval(() => {
 }, 1000);
 
 // function onResizemap() {
-//   let mapWidth  = Math.ceil(window.innerWidth);
+//   let mapWidth = Math.ceil(window.innerWidth);
 
-//   document.getElementById('map-canvas').style.width  = (mapWidth*0.5)+"px";
-//   document.getElementById('map-canvas').style.height = (mapWidth*0.3)+"px";
+//   document.getElementById("map-canvas").style.width = mapWidth * 0.5 + "px";
+//   document.getElementById("map-canvas").style.height = mapWidth * 0.3 + "px";
 //   //viewer.scaleToDimensions(2,2);
-
 // }
 
 window.addEventListener("resize", function () {

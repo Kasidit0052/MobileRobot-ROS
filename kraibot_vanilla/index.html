@@ -22,8 +22,13 @@
     <script type="text/javascript" src="./scripts/navigation/NavPath.js"></script>
     <script type="text/javascript" src="./scripts/navigation/PoseAndTrace.js"></script>
 
-    <script type="text/javascript" src="./scripts/index.js"></script>
+    <!-- <script type="text/javascript" src="./scripts/index.js"></script> -->
+    <script type="text/javascript" src="./scripts/connection.js"></script>
+    <script type="text/javascript" src="./scripts/modeHandle.js"></script>
+    <script type="text/javascript" src="./scripts/handleTeleop.js"></script>
+    <script type="text/javascript" src="./scripts/mapHandle.js"></script>
     <script src="./mui-0.10.3/js/mui.min.js"></script>
+
 </head>
 </script>
 <body onload="init()">
@@ -50,14 +55,15 @@
                     <div class="form">
                         <form class="mui-form">
                             <div class="mui-select">
-                                <select class="mapSelect" onchange="mapselected(this)">
+                                <select class="mapSelect" onchange="handleSelectmap(this)">
+                                    <option value="NA" disabled selected hidden>Please Choose Your Map</option>
                                 </select>
                                 <label>Select Map</label>
                               </div>
                         </form>
                     </div>
                     <div class="map-button">
-                        <button class="mui-btn mui-btn--primary mui-btn--raised activeMapBtn" onclick="handleActiveemap()">ACTIVE SELECTED MAP</button>
+                        <button class="mui-btn mui-btn--primary mui-btn--raised activeMapBtn" onclick="handleActivemap()">ACTIVE SELECTED MAP</button>
                         <button class="mui-btn mui-btn--primary mui-btn--raised createMapBtn" onclick="handleCreatemap()">CREATE NEW MAP</button>
                         <button class="mui-btn mui-btn--primary mui-btn--raised saveMapBtn" onclick="handleSavemap()" disabled>SAVE MAP</button>
                         <button class="mui-btn mui-btn--primary mui-btn--raised deleteMapBtn" onclick="handleDeletemap()" >DELETE  CURRENT MAP</button>
@@ -92,7 +98,7 @@
                     </div>
                 </div>
                 <div class="connection-wrapper">
-                    space
+                    <h6 class="test"></h6>
                 </div>
             </div>
         </div>
