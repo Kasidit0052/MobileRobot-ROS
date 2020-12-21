@@ -514,12 +514,18 @@ app.post('/api/saveMap',(req, res) => {
   const mapPath = path.join(current_path,'map'); 
   if(req.body.confirm == "YES")
   {
-    spawn('rosrun',['map_server', 'map_saver', '-f', global.mapName],{stdio: 'inherit'})
-    global.slamProcess.kill();
-    res.json("Svae map");
+    exec(`rosrun map_server map_saver -f ${path.join(mapPath,global.mapName,global.mapName)}`, (error, stdout, stderr) => {
+      if (error) {
+          console.error(`exec error: ${error}`);
+          return;
+      }
+      global.slamProcess.kill();
+    });
+    res.json("Save map");
   }
   if(req.body.confirm == "NO")
   {
+    fs.rmdirSync(path.join(mapPath,global.mapName));
     global.slamProcess.kill();
     res.json("Discard map");
   }
