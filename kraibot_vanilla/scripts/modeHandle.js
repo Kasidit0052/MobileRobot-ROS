@@ -1,6 +1,7 @@
 var currentMode = null;
 
-function handleMode(mode) {
+async function handleMode(mode) {
+  console.log(mode);
   const teleopElems = Array.from(document.querySelectorAll(".teleopBtn"));
 
   if (mode === "manual") {
@@ -19,7 +20,7 @@ function handleMode(mode) {
     document.querySelector(".navigationBtn").disabled = true;
     document.querySelector(".initialBtn").disabled = false;
     currentMode = "nav";
-    pose_listener_amcl.subscribe(robotMarker_callback);
+    //pose_listener_amcl.subscribe(robotMarker_callback);
   } else if (mode === "init") {
     teleopElems.forEach((teleopElem) => {
       teleopElem.disabled = true;
@@ -35,6 +36,36 @@ function handleMode(mode) {
     document.querySelector(".manualBtn").disabled = true;
     document.querySelector(".navigationBtn").disabled = true;
     document.querySelector(".initialBtn").disabled = true;
+    document.querySelector(".activeMapBtn").disabled = true;
+    document.querySelector(".createMapBtn").disabled = true;
+    document.querySelector(".saveMapBtn").disabled = false;
+    document.querySelector(".deleteMapBtn").disabled = true;
     currentMode = "slam";
+  } else if (mode === "NA") {
+    teleopElems.forEach((teleopElem) => {
+      teleopElem.disabled = true;
+    });
+    document.querySelector(".manualBtn").disabled = false;
+    document.querySelector(".navigationBtn").disabled = false;
+    document.querySelector(".initialBtn").disabled = false;
+  } else if (mode === "Prenav") {
+    teleopElems.forEach((teleopElem) => {
+      teleopElem.disabled = true;
+    });
+    document.querySelector(".manualBtn").disabled = true;
+    document.querySelector(".navigationBtn").disabled = false;
+    document.querySelector(".initialBtn").disabled = true;
+    document.querySelector(".createMapBtn").disabled = true;
+    document.querySelector(".saveMapBtn").disabled = true;
+    document.querySelector(".deleteMapBtn").disabled = true;
+    //window.addEventListener("load", checkRefresh());
   }
 }
+
+// async function checkRefresh() {
+//   if (document.refreshForm.visited.value == "") {
+//     document.refreshForm.visited.value = "1";
+//   } else {
+//     handleDeactivemap();
+//   }
+// }
