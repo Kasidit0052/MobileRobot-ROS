@@ -487,24 +487,42 @@ app.post('/api/deleteMap', (req, res) => {
 
 // Mobile Robot Slam API (Experimental) (usages=> {"map_name" : "Test"}) (Experimental)
 global.slamProcess;
+global.mapName = "";
 app.post('/api/createMap',(req, res) => {
   // path to  map_database
   const mapPath = path.join(current_path,'map'); 
   if(!fs.existsSync(mapPath))
   {
+    fs.mkdirSync(mapPath);
     fs.mkdirSync(path.join(mapPath,req.body.map_name));
-    console.log(req.body.map_name);
+    global.mapName = req.body.map_name;
     global.slamProcess = spawn('roslaunch',['turtlebot3_slam', 'turtlebot3_slam.launch'],{stdio: 'inherit'});
     res.json("Directory created");
   }
   else
   {
     fs.mkdirSync(path.join(mapPath,req.body.map_name));
-    console.log(req.body.map_name);
+    global.mapName = req.body.map_name;
     global.slamProcess = spawn('roslaunch',['turtlebot3_slam', 'turtlebot3_slam.launch'],{stdio: 'inherit'})
     res.json("Directory existed");
   }
-  
+});
+
+// Mobile Robot map saver API (Experimental) (usages=> {"confirm" : "YES/NO"}) (Experimental)
+app.post('/api/saveMap',(req, res) => {
+  // path to  map_database
+  const mapPath = path.join(current_path,'map'); 
+  if(req.body.confirm == "YES")
+  {
+    spawn('rosrun',['map_server', 'map_saver', '-f', global.mapName],{stdio: 'inherit'})
+    global.slamProcess.kill();
+    res.json("Svae map");
+  }
+  if(req.body.confirm == "NO")
+  {
+    global.slamProcess.kill();
+    res.json("Discard map");
+  }
 });
 //////////
 
