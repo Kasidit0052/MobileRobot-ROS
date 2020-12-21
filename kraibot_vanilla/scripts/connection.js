@@ -1,4 +1,4 @@
-const localhost = "localhost";
+const localhost = "172.16.10.20";
 var ros = new ROSLIB.Ros({});
 var viewer = null;
 var zoomView = null;
@@ -67,6 +67,8 @@ async function init() {
     registerMouseHandlers();
   });
   gridClient.rootObject.addChild(robotMarker);
+
+  maps = await FetchMap();
 }
 
 var robotMarker = new ROS2D.NavigationArrow({

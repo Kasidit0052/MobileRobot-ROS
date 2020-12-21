@@ -68,7 +68,7 @@ async function handleCreatemap() {
   mapname = prompt();
   if (mapname) {
     handleMode("slam");
-    //createMap(mapname);
+    createMap(mapname);
   } else {
     window.location.reload();
   }
@@ -81,13 +81,17 @@ async function createMap(input) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ mapName: input }),
+    body: JSON.stringify({ map_name: input }),
   });
 }
 
 async function handleSavemap() {
   var confirm = window.confirm("Press a button to save!");
-  saveMap(confirm);
+  if (confirm === true) {
+    saveMap("YES");
+  } else {
+    saveMap("NO");
+  }
   window.location.reload();
 }
 

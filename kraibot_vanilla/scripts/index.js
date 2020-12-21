@@ -72,12 +72,6 @@ function init() {
   });
 
   gridClient.rootObject.addChild(robotMarker);
-
-  //   const getMap = async function GetMap()  {
-  //     const subscription  = await FetchMap();
-  //     maplist = subscription;
-  //   }
-  //   getMap();
 }
 
 function handleMode(mode) {
@@ -216,7 +210,7 @@ async function MapServer(input) {
 //   console.log(a.value)
 // }
 
-function handleCreatemap() {
+async function handleCreatemap() {
   const createMapElem = document.querySelector(".createMapBtn");
   const saveMapElem = document.querySelector(".saveMapBtn");
   const deleteMapElem = document.querySelector(".deleteMapBtn");
@@ -226,7 +220,7 @@ function handleCreatemap() {
     createMapElem.disabled = true;
     saveMapElem.disabled = false;
     deleteMapElem.disabled = true;
-    MapCreate(true);
+    MapCreate(mapName);
   }
 }
 
