@@ -51,7 +51,7 @@ process.on('uncaughtException', function (err) {
 
 // Attach function
 function init_ros() {
-  ros.connect("ws://192.168.1.10:9090");
+  ros.connect("ws://172.16.10.31:9090");
   if (ros.isConnected) {
     global.rosIsConnected = true;
   } else {
@@ -389,17 +389,15 @@ app.post('/api/moveBasePoint', (req, res) => {
 
 // get Map Lists (Experimental)
 app.get('/api/getMapList',(req, res) => {
-
-  // File filtering Argument
-  var EXTENSION = '.yaml';
-  var dirPathtoMapFolder = '/home/parallels/map';
-
-  // Read Directory and return list of file
-  fs.readdir(dirPathtoMapFolder, function(err, files){
-    var targetFiles = files.filter(function(file) {
-      return path.extname(file).toLowerCase() === EXTENSION;
-    });
-    res.json({mapLists : targetFiles});
+  // Folder filtering Argument
+  const mapPath = path.join(current_path,'map'); 
+  var result = []; //this is going to contain paths
+  fs.readdir(mapPath, function (err, filesPath) {
+      if (err) throw err;
+      result = filesPath.map(function (filePath) {
+          return filePath;
+      });
+      res.json({mapLists : result});
   });
 });
 
@@ -407,82 +405,71 @@ app.get('/api/getMapList',(req, res) => {
 global.MapProcess;
 app.post('/api/getMap', (req, res) => {
 
-  // selectedMap Filename
-  var map_file = '';
+  // Folder filtering Argument
+  const EXTENSION = '.yaml';
+  var map_folder_name = "";
+  const mapPath = path.join(current_path,'map'); 
+  var result = []; //this is going to contain paths
 
-  // File filtering Argument
-  var EXTENSION = '.yaml';
-  var dirPathtoMapFolder = '/home/parallels/map';
+  // Read Directories
+  fs.readdir(mapPath, function (err, filesPath) {
 
-  // Read Directory and return list of file
-  fs.readdir(dirPathtoMapFolder, function(err, files){
-    var targetFiles = files.filter(function(file) {
-      return path.extname(file).toLowerCase() === EXTENSION;
-    });
+      if (err) throw err;
+      result = filesPath.map(function (filePath) {
+          return filePath;
+      });
 
-    if(req.body.map_index != 'NA')
-    {
-      // Kill and Create new Map Server Child Process
-      if(global.MapProcess){global.MapProcess.kill();}
-      map_file = targetFiles[parseInt(req.body.map_index)];
-      var absoluteDir = dirPathtoMapFolder+"/" + map_file;
-      global.MapProcess = spawn('rosrun',['map_server', 'map_server', absoluteDir],{stdio: 'inherit'})
-    }
-    else
-    {
-      // Close Map Server Child Process
-      if(global.MapProcess){global.MapProcess.kill();}
-    } 
+      if(req.body.map_index != 'NA')
+      {
+        // Kill and Create new Map Server Child Process
+        if(global.MapProcess){global.MapProcess.kill();}
+
+        map_folder_name = result[parseInt(req.body.map_index)];
+        map_file_name = result[parseInt(req.body.map_index)];
+
+        const currentMapPath = path.join(mapPath,map_folder_name,map_file_name + EXTENSION); 
+        global.MapProcess = spawn('rosrun',['map_server', 'map_server', currentMapPath],{stdio: 'inherit'})
+        res.json(currentMapPath);
+
+      }
+      else
+      {
+        // Close Map Server Child Process
+        if(global.MapProcess){global.MapProcess.kill();}
+      } 
 
   });
+  
 });
 
 // Delete specific map (usages=> {"map_index" : key_value(0,1,2,3)}) (Experimental)
 app.post('/api/deleteMap', (req, res) => {
-
-  // File filtering Argument
-  var EXTENSION = '.yaml';
-  var dirPathtoMapFolder = '/home/parallels/map';
-
   // Kill Current Map Process (prepare to delete)
   if(global.MapProcess){global.MapProcess.kill();}
 
-  // Read Directory and return list of file
-  fs.readdir(dirPathtoMapFolder, function(err, files){
-    var targetFiles = files.filter(function(file) {
-      return path.extname(file).toLowerCase() === EXTENSION;
+  // Folder filtering Argument
+  const mapPath = path.join(current_path,'map'); 
+  var result = []; //this is going to contain paths
+
+  fs.readdir(mapPath, function (err, filesPath) {
+    if (err) throw err;
+    result = filesPath.map(function (filePath) {
+        return filePath;
     });
 
     // Check whether the file is exist or not
-    if(typeof targetFiles[parseInt(req.body.map_index)] !== "undefined")
+    if(typeof result[parseInt(req.body.map_index)] !== "undefined")
     {
-      fileNametoDelete = targetFiles[parseInt(req.body.map_index)].replace('.yaml','');
-
-      // Remove Both map.pgm and map.yaml
-      fs.unlink(path.join(dirPathtoMapFolder,fileNametoDelete.concat(".yaml")), (err) => {
-        if (err) {
-          console.error(err)
-          return
-        }
-      })
-      fs.unlink(path.join(dirPathtoMapFolder,fileNametoDelete.concat(".pgm")), (err) => {
-        if (err) {
-          console.error(err)
-          return
-        }
-      })
-
-      // Return new Maplist to users
-      fs.readdir(dirPathtoMapFolder, function(err, files){
-        var targetFiles = files.filter(function(file) {
-          return path.extname(file).toLowerCase() === EXTENSION;
-        });
-        res.json({mapLists : targetFiles});
-      });
-      
+      const map_folder_name = result[parseInt(req.body.map_index)];
+      const path_to_mapFolder = path.join(mapPath,map_folder_name);
+      fs.rmdirSync(path_to_mapFolder, { recursive: true });
+      res.json("File is sucessfully deleted");
     }
-
+    else{
+      res.json("File is Not existed");
+    }
   });
+
 });
 
 // Mobile Robot Slam API (Experimental) (usages=> {"map_name" : "Test"}) (Experimental)
@@ -530,6 +517,7 @@ app.post('/api/saveMap',(req, res) => {
     res.json("Discard map");
   }
 });
+
 //////////
 
 
