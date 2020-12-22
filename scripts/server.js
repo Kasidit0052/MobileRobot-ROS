@@ -3,7 +3,7 @@ var fs = require('fs');
 var path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
-const { spawn } = require('child_process');
+const { exec , spawn } = require('child_process');
 const app = express();
 const port = process.env.PORT || 8000;
 ////////// ROSLIBJS Init
@@ -51,7 +51,7 @@ process.on('uncaughtException', function (err) {
 
 // Attach function
 function init_ros() {
-  ros.connect("ws://172.16.10.31:9090");
+  ros.connect("ws://172.16.10.20:9090");
   if (ros.isConnected) {
     global.rosIsConnected = true;
   } else {
@@ -516,6 +516,58 @@ app.post('/api/saveMap',(req, res) => {
     global.slamProcess.kill();
     res.json("Discard map");
   }
+});
+
+
+
+// Mobile Robot NAV API (Experimental) (usages=> {"map_index" : key_value(0,1,2,3)}) (Experimental)
+global.navProcess;
+global.navStatus = false;
+app.post('/api/mapNavigation',(req, res) => {
+
+  // path to  map_database
+  const EXTENSION = '.yaml';
+  const mapPath = path.join(current_path,'map'); 
+
+  fs.readdir(mapPath, function (err, filesPath) {
+    if (err) throw err;
+    result = filesPath.map(function (filePath) {
+        return filePath;
+    });
+
+    // Check whether the file is exist or not
+    if(typeof result[parseInt(req.body.map_index)] !== "undefined")
+    {
+      const map_folder_name = result[parseInt(req.body.map_index)];
+      const map_file_name =  result[parseInt(req.body.map_index)];
+
+      const path_to_mapFolder = path.join(mapPath,map_folder_name);
+      const path_to_mapFile = path.join(path_to_mapFolder,map_file_name.concat(EXTENSION));
+
+      if(!global.navStatus)
+      { 
+        global.navProcess = spawn('roslaunch',['turtlebot3_navigation', 'turtlebot3_navigation.launch', 'map_file:='.concat(path_to_mapFile)],{stdio: 'inherit'});
+        res.json("Navigation process sucessfully open");
+        global.navStatus = true;
+      }
+      else
+      {
+        global.navProcess.kill();
+        res.json("Navigation process sucessfully closed");
+        global.navStatus = false;
+      }
+    }
+    else{
+      res.json("File is Not existed");
+    }
+  });
+});
+
+
+// Admin Page Refresh Startup
+app.post('/api/adminStartUp',(req, res) => {
+  if(global.slamProcess){global.slamProcess.kill();}
+  if(global.MapProcess){global.mapProcess.kill();}
 });
 
 //////////
