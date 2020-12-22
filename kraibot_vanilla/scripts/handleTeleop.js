@@ -1,6 +1,6 @@
 var vel_x = 0.0;
 var angular_vel_z = 0.0;
-
+var cmdVel = null;
 // initialozing turtletopic for teleop
 var cmdVel = new ROSLIB.Topic({
   ros: ros,

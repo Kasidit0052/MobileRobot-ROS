@@ -3,9 +3,8 @@ var ros = new ROSLIB.Ros({});
 var viewer = null;
 var zoomView = null;
 var panView = null;
-var gridClient = null;
 var maps = [];
-var pose_listener_amcl = null;
+var initial = null;
 
 // Keep connecting to websocket
 setInterval(() => {
@@ -27,11 +26,13 @@ window.addEventListener("resize", function () {
 });
 
 async function init() {
-  handleMode("NA");
+  initial = await adminStartup();
+  console.log(initial);
+  handleMode("start-up");
+
   maps = await FetchMap();
   console.log(maps);
   queryMaps(maps);
-  MapServer("NA");
 
   viewer = new ROS2D.Viewer({
     divID: "map",
@@ -66,35 +67,9 @@ async function init() {
     );
     registerMouseHandlers();
   });
-  gridClient.rootObject.addChild(robotMarker);
-
-  maps = await FetchMap();
 }
-
-var robotMarker = new ROS2D.NavigationArrow({
-  size: 0.1,
-  strokeSize: 0.01,
-  pulse: true,
-  fillColor: createjs.Graphics.getRGB(119, 221, 119),
-});
 
 // function for obt to get position to robotmarker
-function robotMarker_callback(pose) {
-  robotMarker.x = pose.pose.pose.position.x;
-  robotMarker.y = -pose.pose.pose.position.y;
-  robotMarker.rotation =
-    (new THREE.Euler().setFromQuaternion(
-      new THREE.Quaternion(
-        pose.pose.pose.orientation.x,
-        pose.pose.pose.orientation.y,
-        pose.pose.pose.orientation.z,
-        pose.pose.pose.orientation.w
-      )
-    ).z *
-      -180) /
-    3.14159;
-  console.log(robotMarker);
-}
 
 function registerMouseHandlers() {
   // Setup mouse event handlers
@@ -142,3 +117,20 @@ function registerMouseHandlers() {
     }
   });
 }
+
+async function adminStartup() {
+  const response = await fetch(`http://${localhost}:8000/api/adminStartUp`);
+  return response.json();
+}
+
+// window.onbeforeunload = function (e) {
+//   e = e || window.event;
+
+//   // For IE and Firefox prior to version 4
+//   if (e) {
+//     e.returnValue = "Sure?";
+//   }
+
+//   // For Safari
+//   return "Sure?";
+// };

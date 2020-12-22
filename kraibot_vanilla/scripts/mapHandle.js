@@ -1,4 +1,5 @@
 var mapname = null;
+var gridClient = null;
 
 async function FetchMap() {
   const response = await fetch(`http://${localhost}:8000/api/getMapList`);
@@ -25,16 +26,14 @@ function handleSelectmap(event) {
 }
 
 async function handleActivemap() {
-  handleMode("Prenav");
+  handleMode("map-editor");
   const selectElem = document.querySelector(".mapSelect");
   const activeElem = document.querySelector(".activeMapBtn");
 
-  MapServer(selectElem.value);
+  await MapServer(selectElem.value);
 
   activeElem.innerText = "DEACTIVE MAP";
   activeElem.classList.remove("activeMapBtn");
-  activeElem.classList.remove("mui-btn--primary");
-  activeElem.classList.add("mui-btn--danger");
   activeElem.classList.add("deactiveMapBtn");
   activeElem.removeAttribute("onclick");
   activeElem.setAttribute("onclick", "handleDeactivemap()");
@@ -92,6 +91,7 @@ async function handleSavemap() {
   } else {
     saveMap("NO");
   }
+  gridClient.rootObject.removeChild(slamMarker);
   window.location.reload();
 }
 
@@ -108,8 +108,20 @@ async function saveMap(input) {
 
 async function handleDeletemap() {
   var confirm = window.confirm("Press a button to delete!");
+  const selectElem = document.querySelector(".mapSelect");
   if (confirm) {
-    //deletemap
-    window.location.reload();
+    deleteMap(selectElem.value);
   }
+  window.location.reload();
+}
+
+async function deleteMap(input) {
+  console.log(input);
+  const response = await fetch(`http://${localhost}:8000/api/deleteMap`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ map_index: input }),
+  });
 }
