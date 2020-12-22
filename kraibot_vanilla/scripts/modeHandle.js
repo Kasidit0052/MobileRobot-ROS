@@ -57,7 +57,7 @@ async function handleMode(mode) {
     document.querySelector(".initialBtn").disabled = true;
     document.querySelector(".createMapBtn").disabled = true;
     document.querySelector(".saveMapBtn").disabled = true;
-    document.querySelector(".deleteMapBtn").disabled = true;
+    document.querySelector(".deleteMapBtn").disabled = false;
     //window.addEventListener("load", checkRefresh());
   }
 }
