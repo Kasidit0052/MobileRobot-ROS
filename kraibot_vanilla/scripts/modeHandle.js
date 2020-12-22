@@ -21,7 +21,7 @@ async function handleMode(mode) {
     nav.classList.remove(".mui-btn--primary");
     nav.classList.add("mui-btn--danger");
     nav.classList.add(".stopNavigation");
-    nav.setAttribute("onclick", "handleStopnavigation");
+    nav.setAttribute("onclick", "handleStopnavigation()");
     teleopElems.forEach((teleopElem) => {
       teleopElem.disabled = true;
     });
@@ -29,7 +29,7 @@ async function handleMode(mode) {
     document.querySelector(".initialBtn").disabled = false;
     currentMode = "nav";
     await navigation(selectElem.value);
-    gridNavClient = NAV2D.OccupancyGridClientNav({
+    gridNavClient = new NAV2D.OccupancyGridClientNav({
       ros: ros,
       rootObject: viewer.scene,
       viewer: viewer,
@@ -64,8 +64,9 @@ async function handleMode(mode) {
       teleopElem.disabled = true;
     });
     document.querySelector(".manualBtn").disabled = false;
-    document.querySelector(".navigationBtn").disabled = false;
-    document.querySelector(".initialBtn").disabled = false;
+    document.querySelector(".navigationBtn").disabled = true;
+    document.querySelector(".initialBtn").disabled = true;
+    document.querySelector(".deleteMapBtn").disabled = true;
   } else if (mode === "map-editor") {
     document.querySelector(".manualBtn").disabled = true;
     document.querySelector(".navigationBtn").disabled = false;

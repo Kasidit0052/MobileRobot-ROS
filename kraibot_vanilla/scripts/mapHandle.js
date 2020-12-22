@@ -48,7 +48,6 @@ async function handleDeactivemap() {
   deactiveElem.classList.add("mui-btn--primary");
   deactiveElem.removeAttribute("onclick");
   deactiveElem.setAttribute("onclick", "handleActivemap()");
-  MapServer("NA");
   window.location.reload();
 }
 
@@ -86,12 +85,12 @@ async function createMap(input) {
 
 async function handleSavemap() {
   var confirm = window.confirm("Press a button to save!");
-  if (confirm === true) {
-    saveMap("YES");
-  } else {
-    saveMap("NO");
-  }
   gridClient.rootObject.removeChild(slamMarker);
+  if (confirm === true) {
+    await saveMap("YES");
+  } else {
+    await saveMap("NO");
+  }
   window.location.reload();
 }
 
