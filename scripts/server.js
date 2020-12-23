@@ -47,17 +47,52 @@ global.rosIsConnected = false;
 process.on('uncaughtException', function (err) {
     console.log('UNCAUGHT EXCEPTION - keeping process alive:', err); 
     ros = new ROSLIB.Ros();
+
+    // Reinit Rostopic and ActionClients
+    var actionClient = new ROSLIB.ActionClient({
+      ros : ros,
+      serverName : '/move_base',
+      actionName : 'move_base_msgs/MoveBaseAction'
+    });
+    
+    // Init Odometry listener
+    var odom_listener = new ROSLIB.Topic({
+      ros : ros,
+      name : '/odom',
+      messageType : 'nav_msgs/Odometry'
+    });
+    
+    // Init AMCL listener
+    var amcl_listener = new ROSLIB.Topic({
+      ros : ros,
+      name : '/amcl_pose',
+      messageType : 'geometry_msgs/PoseWithCovarianceStamped'
+    });
+    
+    // Init Cmd_Vel listener
+    var cmd_vel_listener = new ROSLIB.Topic({
+      ros : ros,
+      name : '/cmd_vel',
+      messageType : 'geometry_msgs/Twist'
+    });
+
+    // Reattach Subscriber to callback functions
+    odom_listener.subscribe(odom_callback);
+    amcl_listener.subscribe(amcl_callback);
+    cmd_vel_listener.subscribe(cmd_vel_callback);
 });
 
 // Attach function
 function init_ros() {
   ros.connect("ws://172.16.10.20:9090");
+  //ros.connect("ws://192.168.1.10:9090");
   if (ros.isConnected) {
     global.rosIsConnected = true;
   } else {
     global.rosIsConnected = false;
   }
 }
+
 // Set Interval
 intervalid = setInterval(init_ros,1000);
 
@@ -566,6 +601,7 @@ app.post('/api/mapNavigation',(req, res) => {
 
 // Admin Page Refresh Startup
 app.post('/api/adminStartUp',(req, res) => {
+  if(global.navProcess){global.navProcess.kill();global.navStatus = false;}
   if(global.slamProcess){global.slamProcess.kill();}
   if(global.MapProcess){global.mapProcess.kill();}
 });
