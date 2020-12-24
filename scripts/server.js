@@ -427,13 +427,22 @@ app.get('/api/getMapList',(req, res) => {
   // Folder filtering Argument
   const mapPath = path.join(current_path,'map'); 
   var result = []; //this is going to contain paths
-  fs.readdir(mapPath, function (err, filesPath) {
+
+  if(fs.existsSync(mapPath))
+  {
+    fs.readdir(mapPath, function (err, filesPath) {
       if (err) throw err;
       result = filesPath.map(function (filePath) {
           return filePath;
       });
       res.json({mapLists : result});
-  });
+    });
+  }
+  else
+  {
+    fs.mkdirSync(mapPath);
+    res.json("No Map");
+  }
 });
 
 // Open specific map (usages=> {"map_index" : key_value(0,1,2,3)}) (Experimental)
@@ -446,35 +455,42 @@ app.post('/api/getMap', (req, res) => {
   const mapPath = path.join(current_path,'map'); 
   var result = []; //this is going to contain paths
 
-  // Read Directories
-  fs.readdir(mapPath, function (err, filesPath) {
+  if(fs.existsSync(mapPath))
+  {
+    // Read Directories
+    fs.readdir(mapPath, function (err, filesPath) {
 
-      if (err) throw err;
-      result = filesPath.map(function (filePath) {
-          return filePath;
-      });
+        if (err) throw err;
+        result = filesPath.map(function (filePath) {
+            return filePath;
+        });
 
-      if(req.body.map_index != 'NA')
-      {
-        // Kill and Create new Map Server Child Process
-        if(global.MapProcess){global.MapProcess.kill();}
+        if(req.body.map_index != 'NA')
+        {
+          // Kill and Create new Map Server Child Process
+          if(global.MapProcess){global.MapProcess.kill();}
 
-        map_folder_name = result[parseInt(req.body.map_index)];
-        map_file_name = result[parseInt(req.body.map_index)];
+          map_folder_name = result[parseInt(req.body.map_index)];
+          map_file_name = result[parseInt(req.body.map_index)];
 
-        const currentMapPath = path.join(mapPath,map_folder_name,map_file_name + EXTENSION); 
-        global.MapProcess = spawn('rosrun',['map_server', 'map_server', currentMapPath],{stdio: 'inherit'})
-        res.json(currentMapPath);
+          const currentMapPath = path.join(mapPath,map_folder_name,map_file_name + EXTENSION); 
+          global.MapProcess = spawn('rosrun',['map_server', 'map_server', currentMapPath],{stdio: 'inherit'})
+          res.json(currentMapPath);
 
-      }
-      else
-      {
-        // Close Map Server Child Process
-        if(global.MapProcess){global.MapProcess.kill();}
-      } 
+        }
+        else
+        {
+          // Close Map Server Child Process
+          if(global.MapProcess){global.MapProcess.kill();}
+        } 
 
-  });
-  
+    });
+  }
+  else
+  {
+    fs.mkdirSync(mapPath);
+  }
+
 });
 
 // Delete specific map (usages=> {"map_index" : key_value(0,1,2,3)}) (Experimental)
@@ -600,7 +616,7 @@ app.post('/api/mapNavigation',(req, res) => {
 
 
 // Admin Page Refresh Startup
-app.post('/api/adminStartUp',(req, res) => {
+app.get('/api/adminStartUp',(req, res) => {
   if(global.navProcess){global.navProcess.kill();global.navStatus = false;}
   if(global.slamProcess){global.slamProcess.kill();}
   if(global.MapProcess){global.mapProcess.kill();}
