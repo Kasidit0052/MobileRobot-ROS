@@ -446,7 +446,7 @@ app.get('/api/getMapList',(req, res) => {
 });
 
 // Open specific map (usages=> {"map_index" : key_value(0,1,2,3)}) (Experimental)
-global.MapProcess;
+global.mapProcess;
 app.post('/api/getMap', (req, res) => {
 
   // Folder filtering Argument
@@ -468,20 +468,20 @@ app.post('/api/getMap', (req, res) => {
         if(req.body.map_index != 'NA')
         {
           // Kill and Create new Map Server Child Process
-          if(global.MapProcess){global.MapProcess.kill();}
+          if(global.mapProcess){global.mapProcess.kill();}
 
           map_folder_name = result[parseInt(req.body.map_index)];
           map_file_name = result[parseInt(req.body.map_index)];
 
           const currentMapPath = path.join(mapPath,map_folder_name,map_file_name + EXTENSION); 
-          global.MapProcess = spawn('rosrun',['map_server', 'map_server', currentMapPath],{stdio: 'inherit'})
+          global.mapProcess = spawn('rosrun',['map_server', 'map_server', currentMapPath],{stdio: 'inherit'})
           res.json(currentMapPath);
 
         }
         else
         {
           // Close Map Server Child Process
-          if(global.MapProcess){global.MapProcess.kill();}
+          if(global.mapProcess){global.mapProcess.kill();}
         } 
 
     });
@@ -496,7 +496,7 @@ app.post('/api/getMap', (req, res) => {
 // Delete specific map (usages=> {"map_index" : key_value(0,1,2,3)}) (Experimental)
 app.post('/api/deleteMap', (req, res) => {
   // Kill Current Map Process (prepare to delete)
-  if(global.MapProcess){global.MapProcess.kill();}
+  if(global.mapProcess){global.mapProcess.kill();}
 
   // Folder filtering Argument
   const mapPath = path.join(current_path,'map'); 
@@ -555,11 +555,12 @@ app.post('/api/saveMap',(req, res) => {
     exec(`rosrun map_server map_saver -f ${path.join(mapPath,global.mapName,global.mapName)}`, (error, stdout, stderr) => {
       if (error) {
           console.error(`exec error: ${error}`);
+          res.json("Error save map");
           return;
       }
       global.slamProcess.kill();
+      res.json("Save map");
     });
-    res.json("Save map");
   }
   if(req.body.confirm == "NO")
   {
@@ -619,7 +620,8 @@ app.post('/api/mapNavigation',(req, res) => {
 app.get('/api/adminStartUp',(req, res) => {
   if(global.navProcess){global.navProcess.kill();global.navStatus = false;}
   if(global.slamProcess){global.slamProcess.kill();}
-  if(global.MapProcess){global.mapProcess.kill();}
+  if(global.mapProcess){global.mapProcess.kill();}
+  res.json("Startup Succeed");
 });
 
 //////////

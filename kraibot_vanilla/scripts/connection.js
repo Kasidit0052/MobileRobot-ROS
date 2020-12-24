@@ -1,4 +1,4 @@
-const localhost = "172.16.10.20";
+const localhost = "192.168.1.30";
 var ros = new ROSLIB.Ros({});
 var viewer = null;
 var zoomView = null;
@@ -26,6 +26,7 @@ window.addEventListener("resize", function () {
 });
 
 async function init() {
+  console.log("Hello World");
   initial = await adminStartup();
   console.log(initial);
   handleMode("start-up");
