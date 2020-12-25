@@ -34,6 +34,8 @@ async function handleMode(mode) {
       rootObject: viewer.scene,
       viewer: viewer,
       serverName: "/move_base",
+      withOrientation: true,
+      arrowSize: 5
     });
     pose_listener_amcl.subscribe(nav_callback);
     gridNavClient.rootObject.addChild(navMarker);
