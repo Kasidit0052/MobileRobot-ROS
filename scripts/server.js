@@ -62,8 +62,14 @@ process.on('uncaughtException', function (err) {
       messageType : 'nav_msgs/Odometry'
     });
     
-    // Init AMCL listener
+    // Init AMCL listener and AMCL publisher
     var amcl_listener = new ROSLIB.Topic({
+      ros : ros,
+      name : '/amcl_pose',
+      messageType : 'geometry_msgs/PoseWithCovarianceStamped'
+    });
+
+    var amcl_pubilsher = new ROSLIB.Topic({
       ros : ros,
       name : '/amcl_pose',
       messageType : 'geometry_msgs/PoseWithCovarianceStamped'
@@ -84,8 +90,8 @@ process.on('uncaughtException', function (err) {
 
 // Attach function
 function init_ros() {
-  ros.connect("ws://172.16.10.20:9090");
-  //ros.connect("ws://192.168.1.10:9090");
+  //ros.connect("ws://172.16.10.20:9090");
+  ros.connect("ws://192.168.1.30:9090");
   if (ros.isConnected) {
     global.rosIsConnected = true;
   } else {
@@ -110,7 +116,7 @@ var actionClient = new ROSLIB.ActionClient({
   actionName : 'move_base_msgs/MoveBaseAction'
 });
 
-// Init Odometry listener
+// Init Odometry listener 
 var odom_listener = new ROSLIB.Topic({
   ros : ros,
   name : '/odom',
@@ -622,6 +628,33 @@ app.get('/api/adminStartUp',(req, res) => {
   if(global.slamProcess){global.slamProcess.kill();}
   if(global.mapProcess){global.mapProcess.kill();}
   res.json("Startup Succeed");
+});
+
+
+// Initial pose for navigation
+app.get('/api/initpose',(req, res) => {
+
+  var default_poseWithCovarianceStamped = new ROSLIB.Message({
+    header: {
+    frame_id: 'map'
+    },
+    pose: {
+    pose:
+    {
+    position: { x: 0.0, y: 0.0, z: 0 },
+    orientation: { x: 0.0, y: 0.0, z: 0, w: 1 },
+    },
+    covariance: [
+    0.25, 0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.25, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.07]
+    }
+    });
+    amcl_pubilsher.publish(default_poseWithCovarianceStamped);
+    res.json("Init Pose Sucessfully");
 });
 
 //////////
