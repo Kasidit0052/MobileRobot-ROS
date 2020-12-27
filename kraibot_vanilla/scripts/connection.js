@@ -1,6 +1,7 @@
 const localhost = "192.168.1.30";
 var ros = new ROSLIB.Ros({});
-var viewer = null;
+viewer = null;
+gridClient = null;
 var zoomView = null;
 var panView = null;
 var maps = [];
@@ -17,16 +18,7 @@ setInterval(() => {
   }
 }, 1000);
 
-window.addEventListener("resize", function () {
-  let mapWidth = Math.ceil(window.innerWidth);
-
-  document.getElementById("map-canvas").style.width = mapWidth * 0.5 + "px";
-  document.getElementById("map-canvas").style.height = mapWidth * 0.3 + "px";
-  //viewer.scaleToDimensions(2,2);
-});
-
 async function init() {
-  console.log("Hello World");
   initial = await adminStartup();
   console.log(initial);
   handleMode("start-up");
@@ -54,8 +46,8 @@ async function init() {
     ros: ros,
     rootObject: viewer.scene,
     continuous: true,
-    // continuous: continuous,
   });
+
   // Scale the canvas to fit to the map
   gridClient.on("change", function () {
     viewer.scaleToDimensions(
@@ -68,6 +60,15 @@ async function init() {
     );
     registerMouseHandlers();
   });
+
+  window.addEventListener("resize", function () {
+    let mapWidth = Math.ceil(window.innerWidth);
+  
+    document.getElementById("map-canvas").style.width = mapWidth * 0.5 + "px";
+    document.getElementById("map-canvas").style.height = mapWidth * 0.3 + "px";
+    //viewer.scaleToDimensions(2,2);
+  });
+
 }
 
 // function for obt to get position to robotmarker
@@ -123,15 +124,3 @@ async function adminStartup() {
   const response = await fetch(`http://${localhost}:8000/api/adminStartUp`);
   return response.json();
 }
-
-// window.onbeforeunload = function (e) {
-//   e = e || window.event;
-
-//   // For IE and Firefox prior to version 4
-//   if (e) {
-//     e.returnValue = "Sure?";
-//   }
-
-//   // For Safari
-//   return "Sure?";
-// };

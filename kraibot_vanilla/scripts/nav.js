@@ -1,7 +1,7 @@
 var pose_listener_amcl = null;
 var pose_listener_amcl = new ROSLIB.Topic({
   ros: ros,
-  name: "amcl_pose",
+  name: "/amcl_pose",
   messageType: "geometry_msgs/PoseWithCovarianceStamped",
 });
 
