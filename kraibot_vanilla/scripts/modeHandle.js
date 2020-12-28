@@ -99,18 +99,16 @@ async function handleStopnavigation() {
 }
 
 async function handleemergency() {
+  //add
+  output_log = gridNavClient.navigator.cancelGoal;
+  console.log(output_log);
   const response = await emergencySend();
   console.log(response);
 }
 
 async function emergencySend() {
-  const response = await fetch(`http://${localhost}:8000/api/robot_cancel`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ map_index: input }),
-  });
+  const response = await fetch(`http://${localhost}:8000/api/robot_cancel`);
+  return response.json();
 }
 
 async function handleinitpose() {

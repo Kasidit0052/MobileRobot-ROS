@@ -1,4 +1,4 @@
-const localhost = "localhost";
+const localhost = "192.168.1.30";
 var ros = new ROSLIB.Ros({});
 viewer = null;
 gridClient = null;
@@ -85,89 +85,49 @@ function registerMouseHandlers() {
 
   var startPos = new ROSLIB.Vector3();
 
-  viewer.scene.addEventListener("keydown", function (event) {
-    if (event.key === "Control") {
-      zoomKey = true;
-    } else if (event.key === "Shift") {
-      panKey = true;
+  viewer.scene.addEventListener("stagemousemove", function (event) {
+    viewer.scene.addEventListener("stagemousedown", function (event) {
+      if (event.nativeEvent.ctrlKey === true) {
+        zoomKey = true;
+        zoomView.startZoom(event.stageX, event.stageY);
+        //add
+        onPanZoom = true;
+      } else if (event.nativeEvent.shiftKey === true) {
+        panKey = true;
+        panView.startPan(event.stageX, event.stageY);
+        //add
+        onPanZoom = true;
+      }
+      startPos.x = event.stageX;
+      startPos.y = event.stageY;
+      mouseDown = true;
+    });
+    if (mouseDown === true) {
+      if (zoomKey === true) {
+        var dy = event.stageY - startPos.y;
+        var zoom = 1 + (10 * Math.abs(dy)) / viewer.scene.canvas.clientHeight;
+        if (dy < 0) {
+          zoom = 1 / zoom;
+        }
+        zoomView.zoom(zoom);
+      } else if (panKey === true) {
+        panView.pan(event.stageX, event.stageY);
+      }
     }
-    viewer.scene.addEventListener("stagemousemove", function (event) {
-      viewer.scene.addEventListener("stagemousedown", function (event) {
-        if (zoomKey === true) {
-          zoomView.startZoom(event.stageX, event.stageY);
-        } else if (panKey === true) {
-          panView.startPan(event.stage, event.stageY);
-        }
-        startPos.x = event.stageX;
-        startPos.y = event.stageY;
-        mouseDown = true;
-      });
-      if (mouseDown === true) {
-        if (zoomKey === true) {
-          var dy = event.stageY - startPos.y;
-          var zoom = 1 + (10 * Math.abs(dy)) / viewer.scene.canvas.clientHeight;
-          if (dy < 0) {
-            zoom = 1 / zoom;
-          }
-          zoomView.zoom(zoom);
-        } else if (panKey === true) {
-          panView.pan(event.stageX, event.stageY);
-        }
-      }
-    });
-    viewer.scene.addEventListener("stagemouseup", function (event) {
-      if (mouseDown === true && onPanZoom === true) {
-        if (zoomKey === true) {
-          zoomKey = false;
-        } else if (panKey === true) {
-          panKey = false;
-        }
-        mouseDown = false;
-      }
-    });
   });
 
-  // viewer.scene.addEventListener("stagemousemove", function (event) {
-  //   viewer.scene.addEventListener("stagemousedown", function (event) {
-
-  //     if (event.nativeEvent.ctrlKey === true) {
-  //       zoomKey = true;
-  //       zoomView.startZoom(event.stageX, event.stageY);
-  //     } else if (event.nativeEvent.shiftKey === true) {
-  //       panKey = true;
-  //       panView.startPan(event.stageX, event.stageY);
-  //     }
-  //     startPos.x = event.stageX;
-  //     startPos.y = event.stageY;
-  //     mouseDown = true;
-  //     onPanZoom = true;
-  //   });
-  //   if (mouseDown === true && onPanZoom === true) {
-  //     if (zoomKey === true) {
-  //       var dy = event.stageY - startPos.y;
-  //       var zoom = 1 + (10 * Math.abs(dy)) / viewer.scene.canvas.clientHeight;
-  //       if (dy < 0) {
-  //         zoom = 1 / zoom;
-  //       }
-  //       zoomView.zoom(zoom);
-  //     } else if (panKey === true) {
-  //       panView.pan(event.stageX, event.stageY);
-  //     }
-  //   }
-  // });
-
-  // viewer.scene.addEventListener("stagemouseup", function (event) {
-  //   if (mouseDown === true && onPanZoom === true) {
-  //     if (zoomKey === true) {
-  //       zoomKey = false;
-  //     } else if (panKey === true) {
-  //       panKey = false;
-  //     }
-  //     mouseDown = false;
-  //     onPanZoom = false;
-  //   }
-  // });
-  // console.log(onPanZoom);
+  viewer.scene.addEventListener("stagemouseup", function (event) {
+    if (mouseDown === true) {
+      if (zoomKey === true) {
+        zoomKey = false;
+      } else if (panKey === true) {
+        panKey = false;
+      }
+      mouseDown = false;
+      //add 
+      onPanZoom = false;
+    }
+  });
 }
 
 async function adminStartup() {
