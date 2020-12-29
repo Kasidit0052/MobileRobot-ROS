@@ -60,18 +60,18 @@ process.on('uncaughtException', function (err) {
       ros : ros,
       name : '/odom',
       messageType : 'nav_msgs/Odometry'
-    });
-    
-    // Init AMCL listener and AMCL publisher
+    });global.Pose
+    // Init AMCL listener
     var amcl_listener = new ROSLIB.Topic({
       ros : ros,
       name : '/amcl_pose',
       messageType : 'geometry_msgs/PoseWithCovarianceStamped'
     });
 
-    var amcl_pubilsher = new ROSLIB.Topic({
+    // Initial Pose Publisher
+    var initpose_publisher = new ROSLIB.Topic({
       ros : ros,
-      name : '/amcl_pose',
+      name : '/initialpose',
       messageType : 'geometry_msgs/PoseWithCovarianceStamped'
     });
     
@@ -116,7 +116,7 @@ var actionClient = new ROSLIB.ActionClient({
   actionName : 'move_base_msgs/MoveBaseAction'
 });
 
-// Init Odometry listener 
+// Init Odometry listener
 var odom_listener = new ROSLIB.Topic({
   ros : ros,
   name : '/odom',
@@ -127,6 +127,12 @@ var odom_listener = new ROSLIB.Topic({
 var amcl_listener = new ROSLIB.Topic({
   ros : ros,
   name : '/amcl_pose',
+  messageType : 'geometry_msgs/PoseWithCovarianceStamped'
+});
+
+var initpose_publisher = new ROSLIB.Topic({
+  ros : ros,
+  name : '/initialpose',
   messageType : 'geometry_msgs/PoseWithCovarianceStamped'
 });
 
@@ -239,7 +245,7 @@ app.post('/api/moveBaseCoordinate', (req, res) => {
 });
 
 // cancel MobileRobot Goal (usages=> no input required)
-app.post('/api/robot_cancel', (req, res) => {
+app.get('/api/robot_cancel', (req, res) => {
   console.log("robot just cancelled");
   actionClient.cancel();
   res.json("robot just cancelled");
@@ -486,6 +492,7 @@ app.post('/api/getMap', (req, res) => {
         }
         else
         {
+          console.log("passed");
           // Close Map Server Child Process
           if(global.mapProcess){global.mapProcess.kill();}
         } 
@@ -554,6 +561,7 @@ app.post('/api/createMap',(req, res) => {
 
 // Mobile Robot map saver API (Experimental) (usages=> {"confirm" : "YES/NO"}) (Experimental)
 app.post('/api/saveMap',(req, res) => {
+  console.log(req.body);
   // path to  map_database
   const mapPath = path.join(current_path,'map'); 
   if(req.body.confirm == "YES")
@@ -561,9 +569,9 @@ app.post('/api/saveMap',(req, res) => {
     exec(`rosrun map_server map_saver -f ${path.join(mapPath,global.mapName,global.mapName)}`, (error, stdout, stderr) => {
       if (error) {
           console.error(`exec error: ${error}`);
-          res.json("Error save map");
           return;
       }
+      console.log("kill process");
       global.slamProcess.kill();
       res.json("Save map");
     });
@@ -627,13 +635,12 @@ app.get('/api/adminStartUp',(req, res) => {
   if(global.navProcess){global.navProcess.kill();global.navStatus = false;}
   if(global.slamProcess){global.slamProcess.kill();}
   if(global.mapProcess){global.mapProcess.kill();}
-  res.json("Startup Succeed");
+  res.json("Hello world");
 });
-
 
 // Initial pose for navigation
 app.get('/api/initpose',(req, res) => {
-
+  console.log("set initial pose");
   var default_poseWithCovarianceStamped = new ROSLIB.Message({
     header: {
     frame_id: 'map'
@@ -653,7 +660,7 @@ app.get('/api/initpose',(req, res) => {
     0.0, 0.0, 0.0, 0.0, 0.0, 0.07]
     }
     });
-    amcl_pubilsher.publish(default_poseWithCovarianceStamped);
+    initpose_publisher.publish(default_poseWithCovarianceStamped);
     res.json("Init Pose Sucessfully");
 });
 
