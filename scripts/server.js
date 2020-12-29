@@ -60,18 +60,12 @@ process.on('uncaughtException', function (err) {
       ros : ros,
       name : '/odom',
       messageType : 'nav_msgs/Odometry'
-    });global.Pose
+    });
+
     // Init AMCL listener
     var amcl_listener = new ROSLIB.Topic({
       ros : ros,
       name : '/amcl_pose',
-      messageType : 'geometry_msgs/PoseWithCovarianceStamped'
-    });
-
-    // Initial Pose Publisher
-    var initpose_publisher = new ROSLIB.Topic({
-      ros : ros,
-      name : '/initialpose',
       messageType : 'geometry_msgs/PoseWithCovarianceStamped'
     });
     
@@ -127,12 +121,6 @@ var odom_listener = new ROSLIB.Topic({
 var amcl_listener = new ROSLIB.Topic({
   ros : ros,
   name : '/amcl_pose',
-  messageType : 'geometry_msgs/PoseWithCovarianceStamped'
-});
-
-var initpose_publisher = new ROSLIB.Topic({
-  ros : ros,
-  name : '/initialpose',
   messageType : 'geometry_msgs/PoseWithCovarianceStamped'
 });
 
@@ -636,32 +624,6 @@ app.get('/api/adminStartUp',(req, res) => {
   if(global.slamProcess){global.slamProcess.kill();}
   if(global.mapProcess){global.mapProcess.kill();}
   res.json("Hello world");
-});
-
-// Initial pose for navigation
-app.get('/api/initpose',(req, res) => {
-  console.log("set initial pose");
-  var default_poseWithCovarianceStamped = new ROSLIB.Message({
-    header: {
-    frame_id: 'map'
-    },
-    pose: {
-    pose:
-    {
-    position: { x: 0.0, y: 0.0, z: 0 },
-    orientation: { x: 0.0, y: 0.0, z: 0, w: 1 },
-    },
-    covariance: [
-    0.25, 0.0, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0.25, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.07]
-    }
-    });
-    initpose_publisher.publish(default_poseWithCovarianceStamped);
-    res.json("Init Pose Sucessfully");
 });
 
 //////////

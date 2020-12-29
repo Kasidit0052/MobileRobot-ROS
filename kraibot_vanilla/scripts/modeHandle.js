@@ -36,7 +36,7 @@ async function handleMode(mode) {
       viewer: viewer,
       serverName: "/move_base",
       withOrientation: true,
-      arrowSize: 5
+      arrowSize: 15
     });
     pose_listener_amcl.subscribe(nav_callback);
     gridNavClient.rootObject.addChild(navMarker);
@@ -112,7 +112,6 @@ async function emergencySend() {
 }
 
 async function handleinitpose() {
-  const response = await fetch(`http://${localhost}:8000/api/initpose`);
-  return response.json();
+  initPose = true;
 }
 
