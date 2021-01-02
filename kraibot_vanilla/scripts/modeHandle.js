@@ -1,6 +1,10 @@
 var currentMode = null;
 var gridNavClient = null;
 
+// add variable to track added points
+var initialPointList = [];
+var currentPointList = [];
+
 async function handleMode(mode) {
   console.log(mode);
   const teleopElems = Array.from(document.querySelectorAll(".teleopBtn"));
@@ -30,6 +34,16 @@ async function handleMode(mode) {
     document.querySelector(".emergencyBtn").disabled = false;
     currentMode = "nav";
     await navigation(selectElem.value);
+
+    // add fetch point
+    var points = await FetchPoint();
+    if(Array.isArray(points))
+    {
+      initialPointList = points;
+      currentPointList = points;
+      queryPoint(points);
+    }
+
     gridNavClient = new NAV2D.OccupancyGridClientNav({
       ros: ros,
       rootObject: viewer.scene,
@@ -115,3 +129,81 @@ async function handleinitpose() {
   initPose = true;
 }
 
+///////////// add Handle save points
+async function handlesavepoint(){
+  point_name = prompt();
+  if (point_name) {
+
+    // save points
+    savePoint(point_name);  
+  }
+}
+
+async function savePoint(input) {
+  const response = await fetch(`http://${localhost}:8000/api/savePoint`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name: input }),
+  });
+
+  // update added point
+  points = await FetchPoint();
+  if(Array.isArray(points))
+  {
+    currentPointList = points;
+
+    // rendering html element for added point
+    let different_elements = currentPointList.filter(x => !initialPointList.includes(x));
+    queryPoint(different_elements); 
+  }
+}
+/////////////
+
+
+//////////// add Load point
+async function FetchPoint() {
+  const response = await fetch(`http://${localhost}:8000/api/loadPoint`);
+  const pointList = await response.json();
+  return pointList;
+}
+
+function queryPoint(points) {
+  var table = document.getElementById("itemtable_table");
+  if (points != null && Array.isArray(points)) {
+    points.map((value, index) => {
+      var row = table.insertRow(0);
+
+      // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+      var cell1 = row.insertCell(0);
+      var cell2 = row.insertCell(1);
+
+      // Add some text to the new cells:
+      cell1.innerHTML = value;
+      cell2.innerHTML = `<button type="button" value=${index} onclick="handleMoveToPoint(${index})" class="btn btn-primary">GO TO POINT</button>`;
+    });
+
+    //update initial point list
+    initialPointList = currentPointList;
+  }
+}
+////////////
+
+//////////// add move to point features
+function handleMoveToPoint(input)
+{
+  //moveToPoint(input);
+  console.log(input);
+}
+
+async function moveToPoint(input) {
+  const response = await fetch(`http://${localhost}:8000/api/moveBasePoint`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ location_index: input }),
+  });
+}
+////////////
