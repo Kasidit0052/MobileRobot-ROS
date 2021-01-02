@@ -37,6 +37,8 @@ global.cmd_vel;
 // Ros Connection Status
 global.rosIsConnected = false;
 
+// Current Navigation map name
+global.navMapName = "";
 //////////
 
 
@@ -270,15 +272,52 @@ app.post('/api/savePoint', (req, res) => {
   // check if files exist or not
   if(fs.existsSync(filepath)){
 
-      // check json structure
+      // both point name and pose are presented
       if( typeof location_name != "undefined" &&  typeof location_poseMessage != "undefined")
       {
         // read json file
         fs.readFile(filepath, 'utf8', function (err,data) {
           if (err) throw err;
           obj = JSON.parse(data);
-          // append new point to an existing json object
-          obj.push(req.body);
+
+          // add mapName to Javascript object
+          newPoint = req.body;
+          newPoint.navMapName = global.navMapName;
+
+         // append new point to an existing json object
+         obj.push(newPoint);
+          
+         // append new point to an existing json object{"frame_id":"map"}
+          fs.writeFile(filepath, JSON.stringify(obj) , function (err) {
+            if (err) throw err;
+            res.json('File writed successfully.');
+          });
+        });
+      } 
+
+      // Added Case (only point name)
+      else if(typeof location_name != "undefined"){
+        // read json file
+        fs.readFile(filepath, 'utf8', function (err,data) {
+          if (err) throw err;
+          obj = JSON.parse(data);
+
+          // create a targetPose instance
+          targetPose = new Object();
+          targetPose.header = {frame_id:"map"};
+          targetPose.Pose = global.Pose;
+
+          // create a poseMessage instance
+          poseMessage = new Object();
+          poseMessage.targetPose = targetPose;
+
+          // add mapName and current point to Javascript object
+          newPoint = req.body;
+          newPoint.poseMessage = poseMessage;
+          newPoint.navMapName = global.navMapName;
+          
+         // append new point to an existing json object
+          obj.push(newPoint);
 
           // rewrite the json file
           fs.writeFile(filepath, JSON.stringify(obj) , function (err) {
@@ -286,7 +325,8 @@ app.post('/api/savePoint', (req, res) => {
             res.json('File writed successfully.');
           });
         });
-      } 
+      }
+      
       else
       {
         res.json("wrong format"); 
@@ -298,15 +338,20 @@ app.post('/api/savePoint', (req, res) => {
         if (err) throw err;
       });
 
-      // check json structure
+      // both point name and pose are presented
       if( typeof location_name != "undefined" &&  typeof location_poseMessage != "undefined")
       {
         // read json file
         fs.readFile(filepath, 'utf8', function (err,data) {
           if (err) throw err;
           obj = JSON.parse(data);
-          // append new point to an existing json object
-          obj.push(req.body);
+
+          // add mapName to Javascript object
+          newPoint = req.body;
+          newPoint.navMapName = global.navMapName;
+          
+         // append new point to an existing json object
+         obj.push(newPoint);
 
           // rewrite the json file
           fs.writeFile(filepath, JSON.stringify(obj) , function (err) {
@@ -314,7 +359,41 @@ app.post('/api/savePoint', (req, res) => {
             res.json('File writed successfully.');
           });
         });
-      } 
+      }
+
+      // Added Case
+      else if(typeof location_name != "undefined"){
+        // read json file
+        fs.readFile(filepath, 'utf8', function (err,data) {
+          if (err) throw err;
+          obj = JSON.parse(data);
+
+          // create a targetPose instance
+          targetPose = new Object();
+          targetPose.header = {frame_id:"map"};
+          targetPose.Pose = global.Pose;
+
+          // create a poseMessage instance
+          poseMessage = new Object();
+          poseMessage.targetPose = targetPose;
+
+          // add mapName and current point to Javascript object
+          newPoint = req.body;
+          newPoint.poseMessage = poseMessage;
+          newPoint.navMapName = global.navMapName;
+          
+         // append new point to an existing json object
+          obj.push(newPoint);
+
+          // rewrite the json file
+          fs.writeFile(filepath, JSON.stringify(obj) , function (err) {
+            if (err) throw err;
+            res.json('File writed successfully.');
+          });
+        });
+
+      }
+      
       else
       {
         res.json("wrong format"); 
@@ -324,7 +403,6 @@ app.post('/api/savePoint', (req, res) => {
 
 // Send lists of location
 app.get('/api/loadPoint', (req, res) => {
-
   // path to  persistent_database
   const filepath = path.join(current_path,'/scripts/persistent_data.txt'); 
 
@@ -335,9 +413,13 @@ app.get('/api/loadPoint', (req, res) => {
       if (err) throw err;
       obj = JSON.parse(data);
 
-      var response_array = [];
-      for(var key in obj){response_array.push(obj[key].name);}
+      // filter value by navMapname 
+      var filtered_obj = obj.filter(function(el) {
+        return el.navMapName === global.navMapName;
+      });
 
+      var response_array = [];
+      for(var key in obj){response_array.push(filtered_obj[key].name);}
       res.json(response_array);
     });
   }
@@ -594,20 +676,31 @@ app.post('/api/mapNavigation',(req, res) => {
     {
       const map_folder_name = result[parseInt(req.body.map_index)];
       const map_file_name =  result[parseInt(req.body.map_index)];
-
       const path_to_mapFolder = path.join(mapPath,map_folder_name);
       const path_to_mapFile = path.join(path_to_mapFolder,map_file_name.concat(EXTENSION));
 
       if(!global.navStatus)
       { 
+        //Spawn Navigation Process
         global.navProcess = spawn('roslaunch',['turtlebot3_navigation', 'turtlebot3_navigation.launch', 'map_file:='.concat(path_to_mapFile)],{stdio: 'inherit'});
         res.json("Navigation process sucessfully open");
+
+        // define global variable for map name
+        global.navMapName = map_folder_name;
+
+        // change navigation status
         global.navStatus = true;
       }
       else
       {
+        //Kill Navigation Process
         global.navProcess.kill();
         res.json("Navigation process sucessfully closed");
+
+        // reset global variable for map name
+        global.navMapName = "";
+
+        // change navigation status
         global.navStatus = false;
       }
     }
