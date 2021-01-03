@@ -419,7 +419,7 @@ app.get('/api/loadPoint', (req, res) => {
       });
 
       var response_array = [];
-      for(var key in obj){response_array.push(filtered_obj[key].name);}
+      for(var key in filtered_obj){response_array.push(filtered_obj[key].name);}
       res.json(response_array);
     });
   }
@@ -445,9 +445,14 @@ app.post('/api/moveBasePoint', (req, res) => {
 
       // load JSON string to javascript object
       obj = JSON.parse(data);
+      
+      // filter value by navMapname 
+      var filtered_obj = obj.filter(function(el) {
+        return el.navMapName === global.navMapName;
+      });
 
       // reference Goal Pose from json object
-      reference_pose = obj[parseInt(req.body.location_index)].poseMessage.targetPose.Pose;
+      reference_pose = filtered_obj[parseInt(req.body.location_index)].poseMessage.targetPose.Pose;
 
 
       // Initializing ROSLIB Goal Pose
