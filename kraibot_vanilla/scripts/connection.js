@@ -1,4 +1,4 @@
-const localhost = "192.168.1.30";
+const localhost = "172.16.10.20";
 var ros = new ROSLIB.Ros({});
 viewer = null;
 gridClient = null;

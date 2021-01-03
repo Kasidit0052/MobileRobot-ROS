@@ -2,7 +2,6 @@ var currentMode = null;
 var gridNavClient = null;
 
 // add variable to track added points
-var initialPointList = [];
 var currentPointList = [];
 
 async function handleMode(mode) {
@@ -39,8 +38,6 @@ async function handleMode(mode) {
     var points = await FetchPoint();
     if(Array.isArray(points))
     {
-      initialPointList = points;
-      currentPointList = points;
       queryPoint(points);
     }
 
@@ -152,11 +149,9 @@ async function savePoint(input) {
   points = await FetchPoint();
   if(Array.isArray(points))
   {
-    currentPointList = points;
-
     // rendering html element for added point
-    let different_elements = currentPointList.filter(x => !initialPointList.includes(x));
-    queryPoint(different_elements); 
+    currentPointList = points;
+    queryPoint(currentPointList[currentPointList.length - 1]); 
   }
 }
 /////////////
@@ -171,6 +166,8 @@ async function FetchPoint() {
 
 function queryPoint(points) {
   var table = document.getElementById("itemtable_table");
+
+  // First Time rendering
   if (points != null && Array.isArray(points)) {
     points.map((value, index) => {
       var row = table.insertRow(0);
@@ -183,17 +180,28 @@ function queryPoint(points) {
       cell1.innerHTML = value;
       cell2.innerHTML = `<button type="button" value=${index} onclick="handleMoveToPoint(${index})" class="btn btn-primary">GO TO POINT</button>`;
     });
-
-    //update initial point list
-    initialPointList = currentPointList;
   }
+
+  // Rendering after added points
+  if (points != null && typeof points === 'string') {
+    var row = table.insertRow(0);
+
+    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+    var cell1 = row.insertCell(0);
+    var cell2 = row.insertCell(1);
+
+    // Add some text to the new cells:
+    cell1.innerHTML = points;
+    cell2.innerHTML = `<button type="button" value=${currentPointList.length - 1} onclick="handleMoveToPoint(${currentPointList.length - 1})" class="btn btn-primary">GO TO POINT</button>`;
+  }
+
 }
 ////////////
 
 //////////// add move to point features
 function handleMoveToPoint(input)
 {
-  //moveToPoint(input);
+  moveToPoint(input);
   console.log(input);
 }
 
