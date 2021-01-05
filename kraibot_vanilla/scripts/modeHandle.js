@@ -128,7 +128,7 @@ async function handleStopManual() {
   manual.classList.remove(".stopManual");
   manual.classList.add(".manualBtn");
   manual.classList.add(".mui-btn--primary");
-  nav.setAttribute("onclick", "handleMode('manual')");
+  manual.setAttribute("onclick", "handleMode('manual')");
   window.location.reload();
 }
 
