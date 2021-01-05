@@ -124,7 +124,7 @@ function registerMouseHandlers() {
         panKey = false;
       }
       mouseDown = false;
-      //add 
+      //add
       onPanZoom = false;
     }
   });

@@ -36,8 +36,7 @@ async function handleMode(mode) {
 
     // add fetch point
     var points = await FetchPoint();
-    if(Array.isArray(points))
-    {
+    if (Array.isArray(points)) {
       queryPoint(points);
     }
 
@@ -47,7 +46,7 @@ async function handleMode(mode) {
       viewer: viewer,
       serverName: "/move_base",
       withOrientation: true,
-      arrowSize: 15
+      arrowSize: 15,
     });
     pose_listener_amcl.subscribe(nav_callback);
     gridNavClient.rootObject.addChild(navMarker);
@@ -85,6 +84,7 @@ async function handleMode(mode) {
     document.querySelector(".deleteMapBtn").disabled = true;
     document.querySelector(".emergencyBtn").disabled = true;
   } else if (mode === "map-editor") {
+    document.querySelector(".mapSelect").disabled = true;
     document.querySelector(".manualBtn").disabled = true;
     document.querySelector(".navigationBtn").disabled = false;
     document.querySelector(".initialBtn").disabled = true;
@@ -127,12 +127,11 @@ async function handleinitpose() {
 }
 
 ///////////// add Handle save points
-async function handlesavepoint(){
+async function handlesavepoint() {
   point_name = prompt();
   if (point_name) {
-
     // save points
-    savePoint(point_name);  
+    savePoint(point_name);
   }
 }
 
@@ -147,15 +146,13 @@ async function savePoint(input) {
 
   // update added point
   points = await FetchPoint();
-  if(Array.isArray(points))
-  {
+  if (Array.isArray(points)) {
     // rendering html element for added point
     currentPointList = points;
-    queryPoint(currentPointList[currentPointList.length - 1]); 
+    queryPoint(currentPointList[currentPointList.length - 1]);
   }
 }
 /////////////
-
 
 //////////// add Load point
 async function FetchPoint() {
@@ -183,7 +180,7 @@ function queryPoint(points) {
   }
 
   // Rendering after added points
-  if (points != null && typeof points === 'string') {
+  if (points != null && typeof points === "string") {
     var row = table.insertRow(0);
 
     // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
@@ -192,15 +189,17 @@ function queryPoint(points) {
 
     // Add some text to the new cells:
     cell1.innerHTML = points;
-    cell2.innerHTML = `<button type="button" value=${currentPointList.length - 1} onclick="handleMoveToPoint(${currentPointList.length - 1})" class="btn btn-primary">GO TO POINT</button>`;
+    cell2.innerHTML = `<button type="button" value=${
+      currentPointList.length - 1
+    } onclick="handleMoveToPoint(${
+      currentPointList.length - 1
+    })" class="btn btn-primary">GO TO POINT</button>`;
   }
-
 }
 ////////////
 
 //////////// add move to point features
-function handleMoveToPoint(input)
-{
+function handleMoveToPoint(input) {
   moveToPoint(input);
   console.log(input);
 }
