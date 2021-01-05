@@ -429,6 +429,52 @@ app.get('/api/loadPoint', (req, res) => {
   }
 });
 
+// Delete Location (usages=> {"location_index" : key_valuekey_value(0,1,2,3)})
+app.post('/api/deletePoint', (req, res) => {
+  // path to  persistent_database
+  const filepath = path.join(current_path,'/scripts/persistent_data.txt'); 
+
+  // Check whether file is exist or not
+  if(fs.existsSync(filepath)){
+    // read and return location lists
+    fs.readFile(filepath, 'utf8', function (err,data) {
+      if (err) throw err;
+      obj = JSON.parse(data);
+
+      // filter value by navMapname 
+      var filtered_obj = obj.filter(function(el) {
+        return el.navMapName === global.navMapName;
+      });
+
+      if(filtered_obj.length > 0){
+        if(typeof filtered_obj[parseInt(req.body.location_index)].name !== "undefined"){
+          // Remove Associate point from database
+          var new_obj = obj.filter(function(el) {
+            return el.name !== filtered_obj[parseInt(req.body.location_index)].name && el.navMapName === global.navMapName;
+          });
+          // rewrite the json file
+          fs.writeFile(filepath, JSON.stringify(obj) , function (err) {
+            if (err) throw err;
+              res.json('File writed successfully.');
+          });
+          // response
+          res.json(JSON.stringify(new_obj));
+        }
+        else
+        {
+          res.json("point does not exist");
+        }
+      }
+      else{
+        res.json("point does not exist");
+      }
+    });
+  }
+  else{
+    res.json("no point to delete");
+  }
+});
+
 // MobileRobot Movebase using Location (usages=> {"location_index" : key_valuekey_value(0,1,2,3)})
 app.post('/api/moveBasePoint', (req, res) => {
 
