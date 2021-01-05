@@ -436,12 +436,12 @@ app.post("/api/deletePoint", (req, res) => {
           var new_obj = obj.filter(function (el) {
             return (
               el.name !==
-                filtered_obj[parseInt(req.body.location_index)].name &&
-              el.navMapName === global.navMapName
+                filtered_obj[parseInt(req.body.location_index)].name ||
+              el.navMapName !== global.navMapName
             );
           });
           // rewrite the json file
-          fs.writeFile(filepath, JSON.stringify(obj), function (err) {
+          fs.writeFile(filepath, JSON.stringify(new_obj), function (err) {
             if (err) throw err;
             res.json("File writed successfully.");
           });
