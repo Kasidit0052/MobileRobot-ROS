@@ -11,11 +11,18 @@ async function handleMode(mode) {
     teleopElems.forEach((teleopElem) => {
       teleopElem.disabled = false;
     });
-    document.querySelector(".manualBtn").disabled = true;
     document.querySelector(".navigationBtn").disabled = true;
     document.querySelector(".initialBtn").disabled = true;
     document.querySelector(".emergencyBtn").disabled = true;
     document.querySelector(".savepointBtn").disabled = true;
+    const manual = document.querySelector(".manualBtn");
+    manual.disabled = false;
+    manual.innerText = "STOP MANUAL";
+    manual.classList.remove(".manualBtn");
+    manual.classList.remove(".mui-btn--primary");
+    manual.classList.add("mui-btn--danger");
+    manual.classList.add(".stopManual");
+    manual.setAttribute("onclick", "handleStopManual()");
     currentMode = "manual";
   } else if (mode === "nav") {
     document.querySelector(".savepointBtn").disabled = false;
@@ -105,12 +112,23 @@ async function handleMode(mode) {
 
 async function handleStopnavigation() {
   const nav = document.querySelector(".navigationBtn");
-  nav.innerText = "NAVIGATION";
-  nav.classList.add(".navigationBtn");
-  nav.classList.add(".mui-btn--primary");
+  nav.innerText = "MANUAL";
   nav.classList.remove("mui-btn--danger");
-  nav.classList.remove(".handleStopnavigation");
+  nav.classList.remove(".stopNavigation");
+  nav.classList.add(".mui-btn--primary");
+  nav.classList.add(".manualBtn");
   nav.setAttribute("onclick", "handleMode('nav')");
+  window.location.reload();
+}
+
+async function handleStopManual() {
+  const manual = document.querySelector(".stopManual");
+  manual.innerText = "manual";
+  manual.classList.remove("mui-btn--danger");
+  manual.classList.remove(".stopManual");
+  manual.classList.add(".manualBtn");
+  manual.classList.add(".mui-btn--primary");
+  nav.setAttribute("onclick", "handleMode('manual')");
   window.location.reload();
 }
 
@@ -172,7 +190,7 @@ function queryPoint(points) {
   // First Time rendering
   if (points != null && Array.isArray(points)) {
     points.map((value, index) => {
-      var row = table.insertRow(0);
+      var row = table.insertRow();
 
       // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
       var cell1 = row.insertCell(0);
@@ -188,7 +206,7 @@ function queryPoint(points) {
 
   // Rendering after added points
   if (points != null && typeof points === "string") {
-    var row = table.insertRow(0);
+    var row = table.insertRow(currentPointList.length);
 
     // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
     var cell1 = row.insertCell(0);
@@ -226,11 +244,11 @@ async function moveToPoint(input) {
     body: JSON.stringify({ location_index: input }),
   });
 }
-////////////
 
 async function handleDeletePoint(input) {
   var confirm = window.confirm("Press a button to save!");
   if (confirm === true) {
+    document.getElementById("itemtable_table").deleteRow(input);
     await deletePoint(input);
   }
 }
@@ -244,4 +262,9 @@ async function deletePoint(input) {
     },
     body: JSON.stringify({ location_index: input }),
   });
+}
+
+function deletePointTable(input) {
+  var table = document.getElementById("itemtable_table");
+  table.deleteRow(input);
 }
