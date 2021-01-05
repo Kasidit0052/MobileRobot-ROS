@@ -15,8 +15,10 @@ async function handleMode(mode) {
     document.querySelector(".navigationBtn").disabled = true;
     document.querySelector(".initialBtn").disabled = true;
     document.querySelector(".emergencyBtn").disabled = true;
+    document.querySelector(".savepointBtn").disabled = true;
     currentMode = "manual";
   } else if (mode === "nav") {
+    document.querySelector(".savepointBtn").disabled = false;
     console.log(teleopOn);
     const selectElem = document.querySelector(".mapSelect");
     const nav = document.querySelector(".navigationBtn");
@@ -60,6 +62,7 @@ async function handleMode(mode) {
       });
     }
   } else if (mode === "slam") {
+    document.querySelector(".savepointBtn").disabled = true;
     teleopElems.forEach((teleopElem) => {
       teleopElem.disabled = false;
     });
@@ -75,6 +78,7 @@ async function handleMode(mode) {
     gridClient.rootObject.addChild(slamMarker);
     currentMode = "slam";
   } else if (mode === "start-up") {
+    document.querySelector(".savepointBtn").disabled = true;
     teleopElems.forEach((teleopElem) => {
       teleopElem.disabled = true;
     });
@@ -84,6 +88,7 @@ async function handleMode(mode) {
     document.querySelector(".deleteMapBtn").disabled = true;
     document.querySelector(".emergencyBtn").disabled = true;
   } else if (mode === "map-editor") {
+    document.querySelector(".savepointBtn").disabled = true;
     document.querySelector(".mapSelect").disabled = true;
     document.querySelector(".manualBtn").disabled = true;
     document.querySelector(".navigationBtn").disabled = false;
@@ -172,10 +177,12 @@ function queryPoint(points) {
       // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
       var cell1 = row.insertCell(0);
       var cell2 = row.insertCell(1);
+      var cell3 = row.insertCell(2);
 
       // Add some text to the new cells:
       cell1.innerHTML = value;
       cell2.innerHTML = `<button type="button" value=${index} onclick="handleMoveToPoint(${index})" class="btn btn-primary">GO TO POINT</button>`;
+      cell3.innerHTML = `<button type="button" value=${index} onclick="handleMoveToPoint(${index})" class="btn btn-danger">DELETE POINT</button>`;
     });
   }
 
@@ -186,6 +193,7 @@ function queryPoint(points) {
     // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
     var cell1 = row.insertCell(0);
     var cell2 = row.insertCell(1);
+    var cell3 = row.insertCell(2);
 
     // Add some text to the new cells:
     cell1.innerHTML = points;
@@ -194,6 +202,11 @@ function queryPoint(points) {
     } onclick="handleMoveToPoint(${
       currentPointList.length - 1
     })" class="btn btn-primary">GO TO POINT</button>`;
+    cell3.innerHTML = `<button type="button" value=${
+      currentPointList.length - 1
+    } onclick="handleDeletePoint(${
+      currentPointList.length - 1
+    })" class="btn btn-danger">DELETE POINT</button>`;
   }
 }
 ////////////
@@ -214,3 +227,5 @@ async function moveToPoint(input) {
   });
 }
 ////////////
+
+function handleDeletePoint(input) {}
