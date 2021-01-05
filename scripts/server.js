@@ -1,5 +1,6 @@
 //// Dependencies
 var fs = require('fs');
+var http = require('http');
 var path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -730,3 +731,14 @@ app.get('/api/adminStartUp',(req, res) => {
 
 ////////// Specific listening port
 app.listen(port, () => console.log(`Listening on port ${port}`));
+
+
+////////// Host HTTP website
+const publicDirectoryPath = path.join(__dirname, '/kraibot_vanilla');
+app.use(express.static(publicDirectoryPath));
+
+// default URL for website
+app.use('/', function(req,res){
+    res.sendFile(path.join(publicDirectoryPath+'/index.html'));
+    //__dirname : It will resolve to your project folder.
+});const server = http.createServer(app);
