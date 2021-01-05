@@ -228,4 +228,20 @@ async function moveToPoint(input) {
 }
 ////////////
 
-function handleDeletePoint(input) {}
+async function handleDeletePoint(input) {
+  var confirm = window.confirm("Press a button to save!");
+  if (confirm === true) {
+    await deletePoint(input);
+  }
+}
+
+async function deletePoint(input) {
+  console.log(input);
+  const response = await fetch(`http://${localhost}:8000/api/deletePoint`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ location_index: input }),
+  });
+}
