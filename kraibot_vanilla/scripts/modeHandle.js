@@ -254,7 +254,6 @@ async function handleDeletePoint(input) {
 }
 
 async function deletePoint(input) {
-  console.log(input);
   const response = await fetch(`http://${localhost}:8000/api/deletePoint`, {
     method: "POST",
     headers: {
@@ -262,6 +261,9 @@ async function deletePoint(input) {
     },
     body: JSON.stringify({ location_index: input }),
   });
+
+  deletePointTable(input);
+  console.log(input);
 }
 
 function deletePointTable(input) {
