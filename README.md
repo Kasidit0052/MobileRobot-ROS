@@ -24,7 +24,7 @@ cd catkin_ws/src
 
 2. git clone this repository
 ```
-git clone https://github.com/Kasidit0052/MobileRobot_ROS.git
+git clone https://github.com/Kasidit0052/MobileRobot-ROS.git
 ```
 3. ls to ensure 
 ```
@@ -33,7 +33,7 @@ ls
 
 4. install all js dependency
 ```
-cd MobileRobot_ROS && yarn install
+cd MobileRobot-ROS && yarn install
 ```
 
 5. move to frontend folder and install all js dependency
@@ -72,5 +72,5 @@ ipaddr
 ## Robot Setup
 go to workspace directory and start server
 ```
-cd catkin_ws/src/MobileRobot_ROS && yarn server
+cd catkin_ws/src/MobileRobot-ROS && yarn server
 ```
