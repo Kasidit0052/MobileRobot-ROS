@@ -1,4 +1,4 @@
-# MobileRobo ROS Web Interface
+# MobileRobot ROS Web Interface
 
 ## Dependencies for Running Locally
 
